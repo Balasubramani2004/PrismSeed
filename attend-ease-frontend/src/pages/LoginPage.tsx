@@ -2,23 +2,20 @@ import React, { useState } from 'react';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import {
   Box,
-  Card,
-  CardContent,
   TextField,
   Button,
   Typography,
   CircularProgress,
   Divider,
   Link,
-  useTheme,
-  useMediaQuery,
   FormControl,
   InputLabel,
   Select,
   MenuItem,
   InputAdornment,
   IconButton,
-  } from '@mui/material';
+  Paper,
+} from '@mui/material';
 import {
   Person as PersonIcon,
   AdminPanelSettings as AdminIcon,
@@ -29,13 +26,13 @@ import {
   Visibility as VisibilityIcon,
   VisibilityOff as VisibilityOffIcon,
   Login as LoginIcon,
+  KeyboardArrowUp as ArrowUpIcon,
+  PersonRemove as DeleteAccountIcon,
 } from '@mui/icons-material';
 import { useAuthStore } from '@/stores/authStore';
 import { UserRole } from '@/types';
 
 const LoginPage: React.FC = () => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const navigate = useNavigate();
   const { login } = useAuthStore();
 
@@ -44,6 +41,7 @@ const LoginPage: React.FC = () => {
   const [selectedRole, setSelectedRole] = useState<UserRole>('LAB_MEMBER');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
   const getDefaultRoute = (role: UserRole) => {
     switch (role) {
       case 'LAB_MEMBER':
@@ -71,193 +69,112 @@ const LoginPage: React.FC = () => {
       sx={{
         minHeight: '100vh',
         display: 'flex',
-        background: 'linear-gradient(135deg, #F8F9FA 0%, #E9ECEF 100%)',
+        flexDirection: 'column',
       }}
     >
-      {/* Left Side - Hero Section (Hidden on Mobile) */}
-      {!isMobile && (
-        <Box
-          sx={{
-            flex: 1,
-            background: 'linear-gradient(135deg, #0066CC 0%, #00ADEF 50%, #0066CC 100%)',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-            p: 6,
-            position: 'relative',
-            overflow: 'hidden',
-          }}
-        >
-          {/* Background Pattern */}
-          <Box
-            sx={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              opacity: 0.1,
-              backgroundImage: `radial-gradient(circle at 25px 25px, white 2%, transparent 0%), 
-                               radial-gradient(circle at 75px 75px, white 2%, transparent 0%)`,
-              backgroundSize: '100px 100px',
-            }}
-          />
-
-          {/* Content */}
-          <Box sx={{ position: 'relative', zIndex: 1, textAlign: 'center', maxWidth: 500 }}>
-            {/* Logo */}
-            <Box
-              sx={{
-                width: 100,
-                height: 100,
-                borderRadius: 4,
-                backgroundColor: 'rgba(255, 255, 255, 0.15)',
-                backdropFilter: 'blur(10px)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                mx: 'auto',
-                mb: 4,
-                border: '2px solid rgba(255, 255, 255, 0.2)',
-              }}
-            >
-              <Typography variant="h2" sx={{ color: 'white', fontWeight: 800 }}>
-                AE
-              </Typography>
-            </Box>
-
-            <Typography
-              variant="h3"
-              sx={{
-                color: 'white',
-                fontWeight: 700,
-                mb: 2,
-                textShadow: '0 2px 4px rgba(0,0,0,0.1)',
-              }}
-            >
-              Attend Ease
-            </Typography>
-
-            <Typography
-              variant="h6"
-              sx={{
-                color: 'rgba(255, 255, 255, 0.9)',
-                fontWeight: 400,
-                mb: 4,
-                lineHeight: 1.6,
-              }}
-            >
-              Automated Invoice Billing Calculator
-              <br />
-              for Samsung SEED Labs
-            </Typography>
-
-            <Divider sx={{ my: 4, borderColor: 'rgba(255, 255, 255, 0.2)', width: '60%', mx: 'auto' }} />
-
-            {/* Features */}
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, alignItems: 'center' }}>
-              {[
-                'Daily Attendance Tracking',
-                'Pro-rata Salary Calculation',
-                'PDF/Excel Reports',
-                'Complete Audit Trail',
-              ].map((feature, index) => (
-                <Box
-                  key={index}
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 1.5,
-                    color: 'rgba(255, 255, 255, 0.9)',
-                  }}
-                >
-                  <Box
-                    sx={{
-                      width: 8,
-                      height: 8,
-                      borderRadius: '50%',
-                      backgroundColor: '#00ADEF',
-                      boxShadow: '0 0 10px rgba(0, 173, 239, 0.5)',
-                    }}
-                  />
-                  <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                    {feature}
-                  </Typography>
-                </Box>
-              ))}
-            </Box>
-          </Box>
-
-          {/* Footer */}
-          <Box
-            sx={{
-              position: 'absolute',
-              bottom: 24,
-              left: 0,
-              right: 0,
-              textAlign: 'center',
-            }}
-          >
-            <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.6)' }}>
-              Powered by Samsung PRISM • © 2026 SEED Labs
-            </Typography>
-          </Box>
-        </Box>
-      )}
-
-      {/* Right Side - Login Form */}
+      {/* Main Content */}
       <Box
         sx={{
-          flex: isMobile ? 1 : '0 0 500px',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-          p: { xs: 3, sm: 4, md: 6 },
+          flex: 1,
+          display: 'grid',
+          placeItems: 'center',
+          backgroundColor: '#f0f2f5',
+          p: 2,
         }}
       >
-        <Box sx={{ width: '100%', maxWidth: 400 }}>
-          {/* Mobile Logo */}
-          {isMobile && (
-            <Box sx={{ textAlign: 'center', mb: 4 }}>
-              <Box
-                sx={{
-                  width: 72,
-                  height: 72,
-                  borderRadius: 3,
-                  background: 'linear-gradient(135deg, #0066CC 0%, #00ADEF 100%)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  mx: 'auto',
-                  mb: 2,
-                }}
-              >
-                <Typography variant="h4" sx={{ color: 'white', fontWeight: 800 }}>
-                  AE
-                </Typography>
-              </Box>
-              <Typography variant="h5" sx={{ fontWeight: 700, color: 'primary.main' }}>
-                Attend Ease
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Samsung SEED Labs Portal
-              </Typography>
-            </Box>
-          )}
-
-          {/* Login Card */}
-          <Card
-            elevation={0}
+        <Paper
+          elevation={6}
+          sx={{
+            display: 'flex',
+            borderRadius: 3,
+            overflow: 'hidden',
+            maxWidth: 900,
+            width: '100%',
+            minHeight: 520,
+          }}
+        >
+          {/* LEFT IMAGE PANEL */}
+          <Box
             sx={{
-              borderRadius: 4,
-              boxShadow: '0px 10px 40px rgba(0, 0, 0, 0.08)',
-              border: '1px solid',
-              borderColor: 'divider',
+              position: 'relative',
+              display: { xs: 'none', md: 'block' },
+              width: '50%',
+              minHeight: 520,
             }}
           >
-            <CardContent sx={{ p: 4 }}>
+            <Box
+              component="img"
+              src="/background.jpeg"
+              alt="SEED Login"
+              sx={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+              }}
+            />
+
+            {/* Dark Overlay */}
+            <Box
+              sx={{
+                position: 'absolute',
+                inset: 0,
+                background: 'linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.5))',
+                zIndex: 1,
+              }}
+            />
+
+            {/* Text Overlay */}
+            <Box
+              sx={{
+                position: 'absolute',
+                inset: 0,
+                zIndex: 2,
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              <Typography
+                variant="h2"
+                sx={{
+                  color: 'white',
+                  fontWeight: 800,
+                  letterSpacing: 4,
+                  textShadow: '2px 2px 4px rgba(0,0,0,0.5)',
+                  fontSize: { md: '2rem', lg: '2.5rem' },
+                }}
+              >
+                SAMSUNG
+              </Typography>
+              <Typography
+                variant="h3"
+                sx={{
+                  color: 'white',
+                  fontWeight: 700,
+                  letterSpacing: 4,
+                  textShadow: '2px 2px 4px rgba(0,0,0,0.5)',
+                  fontSize: { md: '1.5rem', lg: '2rem' },
+                }}
+              >
+                SEED CENTRE
+              </Typography>
+            </Box>
+          </Box>
+
+          {/* RIGHT LOGIN PANEL */}
+          <Box
+            sx={{
+              flex: 1,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              p: { xs: 3, md: 4 },
+              backgroundColor: '#fff',
+            }}
+          >
+            <Box sx={{ width: '100%', maxWidth: 380 }}>
+              {/* Header */}
               <Box sx={{ textAlign: 'center', mb: 3 }}>
                 <Box
                   sx={{
@@ -274,7 +191,7 @@ const LoginPage: React.FC = () => {
                 >
                   <LoginIcon sx={{ fontSize: 28, color: 'white' }} />
                 </Box>
-                <Typography variant="h5" sx={{ fontWeight: 700, mb: 1 }}>
+                <Typography variant="h5" sx={{ fontWeight: 700, mb: 0.5 }}>
                   Welcome Back
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
@@ -419,24 +336,137 @@ const LoginPage: React.FC = () => {
                   color: 'primary.main',
                   '&:hover': {
                     borderColor: 'primary.dark',
-                    bgcolor: 'primary.light',
+                    bgcolor: 'rgba(0, 102, 204, 0.04)',
                   },
                 }}
               >
                 Create Account
               </Button>
-            </CardContent>
-          </Card>
-
-          {/* Footer Links */}
-          <Box sx={{ textAlign: 'center', mt: 3 }}>
-            <Typography variant="caption" color="text.secondary">
-              By signing in, you agree to our{' '}
-              <Link href="#" underline="hover">Terms of Service</Link>
-              {' '}and{' '}
-              <Link href="#" underline="hover">Privacy Policy</Link>
-            </Typography>
+            </Box>
           </Box>
+        </Paper>
+      </Box>
+
+      {/* Main Footer */}
+      <Box
+        component="footer"
+        sx={{
+          bgcolor: '#1a3eff',
+          color: 'white',
+          py: 4,
+          px: { xs: 3, md: 6 },
+        }}
+      >
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: { xs: 'column', md: 'row' },
+            justifyContent: 'space-between',
+            alignItems: { xs: 'flex-start', md: 'flex-start' },
+            gap: 4,
+            maxWidth: 1400,
+            mx: 'auto',
+          }}
+        >
+          {/* Left Section - Got Queries */}
+          <Box>
+            <Typography variant="h6" fontWeight={700} sx={{ mb: 2 }}>
+              Got Queries?
+            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1.5 }}>
+              <EmailIcon sx={{ fontSize: 20 }} />
+              <Link
+                href="mailto:seed@samsung.com"
+                sx={{ color: 'white', textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}
+              >
+                seed@samsung.com
+              </Link>
+            </Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+              <DeleteAccountIcon sx={{ fontSize: 20 }} />
+              <Link
+                href="#"
+                sx={{ color: 'white', textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}
+              >
+                Delete user account
+              </Link>
+            </Box>
+          </Box>
+
+          {/* Right Section - Information */}
+          <Box>
+            <Typography variant="h6" fontWeight={700} sx={{ mb: 2 }}>
+              Information
+            </Typography>
+            <Box
+              sx={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: { xs: 2, md: 4 },
+              }}
+            >
+              {['About Us', 'Contact Us', 'Privacy Policy', 'Terms & Conditions', 'FAQs'].map((item) => (
+                <Link
+                  key={item}
+                  href="#"
+                  sx={{
+                    color: 'white',
+                    textDecoration: 'none',
+                    '&:hover': { textDecoration: 'underline' },
+                  }}
+                >
+                  {item}
+                </Link>
+              ))}
+            </Box>
+          </Box>
+        </Box>
+
+        {/* Bottom Bar */}
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            mt: 4,
+            pt: 2,
+            borderTop: '1px solid rgba(255,255,255,0.2)',
+            maxWidth: 1400,
+            mx: 'auto',
+          }}
+        >
+          <Typography variant="body2" sx={{ opacity: 0.9 }}>
+            Copyright SEED
+          </Typography>
+          <Button
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            sx={{
+              color: 'white',
+              textTransform: 'uppercase',
+              fontWeight: 600,
+              fontSize: '0.75rem',
+              letterSpacing: 1,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1,
+              '&:hover': { bgcolor: 'rgba(255,255,255,0.1)' },
+            }}
+          >
+            Back to Top
+            <Box
+              sx={{
+                width: 36,
+                height: 36,
+                borderRadius: '50%',
+                bgcolor: 'white',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <ArrowUpIcon sx={{ color: '#1a3eff' }} />
+            </Box>
+          </Button>
         </Box>
       </Box>
     </Box>
