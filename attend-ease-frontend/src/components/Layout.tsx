@@ -421,12 +421,16 @@ const Layout: React.FC = () => {
       {/* Sidebar Drawer - Mobile */}
       <Drawer
         variant="temporary"
+        anchor="left"
         open={mobileOpen}
         onClose={handleDrawerToggle}
         ModalProps={{ keepMounted: true }}
         sx={{
           display: { xs: 'block', md: 'none' },
-          '& .MuiDrawer-paper': { width: DRAWER_WIDTH },
+          '& .MuiDrawer-paper': { 
+            width: DRAWER_WIDTH,
+            boxSizing: 'border-box',
+          },
         }}
       >
         {drawerContent}
@@ -435,10 +439,14 @@ const Layout: React.FC = () => {
       {/* Sidebar Drawer - Desktop */}
       <Drawer
         variant="permanent"
+        anchor="left"
         sx={{
           display: { xs: 'none', md: 'block' },
+          width: drawerWidth,
+          flexShrink: 0,
           '& .MuiDrawer-paper': {
             width: drawerWidth,
+            boxSizing: 'border-box',
             transition: theme.transitions.create('width', {
               easing: theme.transitions.easing.sharp,
               duration: theme.transitions.duration.leavingScreen,
@@ -454,7 +462,8 @@ const Layout: React.FC = () => {
         component="main"
         sx={{
           flexGrow: 1,
-          width: { md: `calc(100% - ${drawerWidth}px)` },
+          width: { xs: '100%', md: `calc(100% - ${drawerWidth}px)` },
+          ml: { xs: 0, md: 0 },
           minHeight: '100vh',
           pt: '64px',
           transition: theme.transitions.create(['width', 'margin'], {
