@@ -145,7 +145,7 @@ const LoginPage: React.FC = () => {
                   fontSize: { md: '2rem', lg: '2.5rem' },
                 }}
               >
-                SAMSUNG
+
               </Typography>
               <Typography
                 variant="h3"
@@ -157,7 +157,7 @@ const LoginPage: React.FC = () => {
                   fontSize: { md: '1.5rem', lg: '2rem' },
                 }}
               >
-                SEED CENTRE
+
               </Typography>
             </Box>
           </Box>

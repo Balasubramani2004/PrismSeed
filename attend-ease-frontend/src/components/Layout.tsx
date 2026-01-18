@@ -21,6 +21,7 @@ import {
   Tooltip,
   Badge,
   Chip,
+  alpha,
 } from '@mui/material';
 import {
   Menu as MenuIcon,
@@ -50,31 +51,39 @@ interface NavItem {
   roles: UserRole[];
 }
 
-const navItems: NavItem[] = [
+interface NavItemExtended extends NavItem {
+  color?: string;
+}
+
+const navItems: NavItemExtended[] = [
   // Lab Member Routes
   {
     label: 'Dashboard',
     icon: <DashboardIcon />,
     path: '/member/dashboard',
     roles: ['LAB_MEMBER'],
+    color: '#6366F1',
   },
   {
     label: 'My Attendance',
     icon: <CalendarIcon />,
     path: '/member/attendance',
     roles: ['LAB_MEMBER'],
+    color: '#06B6D4',
   },
   {
     label: 'Salary Slips',
     icon: <ReceiptIcon />,
     path: '/member/salary-slips',
     roles: ['LAB_MEMBER'],
+    color: '#22C55E',
   },
   {
     label: 'Profile',
     icon: <PersonIcon />,
     path: '/member/profile',
     roles: ['LAB_MEMBER'],
+    color: '#F59E0B',
   },
 
   // Admin Routes
@@ -191,7 +200,27 @@ const Layout: React.FC = () => {
   const drawerWidth = collapsed && !isMobile ? DRAWER_COLLAPSED_WIDTH : DRAWER_WIDTH;
 
   const drawerContent = (
-    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+    <Box sx={{
+      display: 'flex',
+      flexDirection: 'column',
+      height: '100%',
+      background: `linear-gradient(180deg, 
+        ${alpha(theme.palette.primary.main, 0.05)} 0%, 
+        ${alpha(theme.palette.background.paper, 1)} 20%,
+        ${alpha(theme.palette.background.paper, 1)} 80%,
+        ${alpha(theme.palette.secondary.main, 0.05)} 100%)`,
+      position: 'relative',
+      '&::before': {
+        content: '""',
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        height: '200px',
+        background: `radial-gradient(circle at top right, ${alpha(theme.palette.primary.light, 0.1)} 0%, transparent 60%)`,
+        pointerEvents: 'none',
+      },
+    }}>
       {/* Logo Section */}
       <Box
         sx={{
@@ -200,68 +229,108 @@ const Layout: React.FC = () => {
           justifyContent: collapsed && !isMobile ? 'center' : 'space-between',
           p: 2,
           minHeight: 64,
-          borderBottom: '1px solid',
-          borderColor: 'divider',
+          borderBottom: `1px solid ${alpha(theme.palette.divider, 0.5)}`,
+          position: 'relative',
+          zIndex: 1,
         }}
       >
         {(!collapsed || isMobile) && (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
             <Box
               sx={{
-                width: 40,
-                height: 40,
-                borderRadius: 2,
-                background: 'linear-gradient(135deg, #0066CC 0%, #00ADEF 100%)',
+                width: 44,
+                height: 44,
+                borderRadius: 2.5,
+                background: 'linear-gradient(135deg, #6366F1 0%, #06B6D4 100%)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 color: 'white',
-                fontWeight: 700,
+                fontWeight: 800,
                 fontSize: '1.25rem',
+                boxShadow: `0 4px 12px ${alpha(theme.palette.primary.main, 0.3)}`,
+                transition: 'all 0.3s',
+                '&:hover': {
+                  transform: 'scale(1.05) rotate(-3deg)',
+                  boxShadow: `0 6px 16px ${alpha(theme.palette.primary.main, 0.4)}`,
+                },
               }}
             >
               AE
             </Box>
             <Box>
-              <Typography variant="h6" sx={{ fontWeight: 700, lineHeight: 1.2, color: 'primary.main' }}>
+              <Typography variant="h6" sx={{ fontWeight: 800, lineHeight: 1.2, background: 'linear-gradient(90deg, #6366F1, #06B6D4)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
                 Attend Ease
               </Typography>
-              <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.65rem' }}>
+              <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.65rem', fontWeight: 600 }}>
                 SEED Labs Portal
               </Typography>
             </Box>
           </Box>
         )}
         {!isMobile && (
-          <IconButton onClick={handleDrawerToggle} size="small">
-            <ChevronLeftIcon sx={{ transform: collapsed ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
+          <IconButton onClick={handleDrawerToggle} size="small" sx={{ bgcolor: alpha(theme.palette.primary.main, 0.08), '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.15) } }}>
+            <ChevronLeftIcon sx={{ transform: collapsed ? 'rotate(180deg)' : 'none', transition: 'transform 0.3s', color: 'primary.main' }} />
           </IconButton>
         )}
       </Box>
 
       {/* Navigation Items */}
-      <Box sx={{ flex: 1, overflowY: 'auto', py: 2 }}>
+      <Box sx={{ flex: 1, overflowY: 'auto', py: 2, position: 'relative', zIndex: 1 }}>
         <List disablePadding>
           {filteredNavItems.map((item) => {
             const isActive = location.pathname === item.path;
+            const itemColor = (item as NavItemExtended).color || theme.palette.primary.main;
+
             return (
-              <ListItem key={item.path} disablePadding sx={{ px: 1, mb: 0.5 }}>
+              <ListItem key={item.path} disablePadding sx={{ px: 1.5, mb: 1 }}>
                 <Tooltip title={collapsed && !isMobile ? item.label : ''} placement="right">
                   <ListItemButton
                     onClick={() => handleNavigation(item.path)}
                     selected={isActive}
                     sx={{
-                      borderRadius: 2,
-                      minHeight: 48,
+                      borderRadius: 2.5,
+                      minHeight: 52,
                       justifyContent: collapsed && !isMobile ? 'center' : 'flex-start',
                       px: collapsed && !isMobile ? 1.5 : 2,
+                      position: 'relative',
+                      overflow: 'hidden',
+                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                      background: isActive
+                        ? `linear-gradient(90deg, ${alpha(itemColor, 0.15)}, ${alpha(itemColor, 0.05)})`
+                        : 'transparent',
+                      border: `2px solid ${isActive ? alpha(itemColor, 0.3) : 'transparent'}`,
+                      '&:hover': {
+                        background: isActive
+                          ? `linear-gradient(90deg, ${alpha(itemColor, 0.2)}, ${alpha(itemColor, 0.1)})`
+                          : alpha(itemColor, 0.08),
+                        border: `2px solid ${alpha(itemColor, 0.2)}`,
+                        transform: 'translateX(4px)',
+                        boxShadow: `0 4px 12px ${alpha(itemColor, 0.15)}`,
+                      },
+                      '&::before': isActive ? {
+                        content: '""',
+                        position: 'absolute',
+                        left: 0,
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        width: '4px',
+                        height: '60%',
+                        background: `linear-gradient(180deg, ${itemColor}, ${alpha(itemColor, 0.5)})`,
+                        borderRadius: '0 4px 4px 0',
+                      } : {},
                     }}
                   >
                     <ListItemIcon
                       sx={{
-                        minWidth: collapsed && !isMobile ? 0 : 40,
+                        minWidth: collapsed && !isMobile ? 0 : 44,
                         justifyContent: 'center',
-                        color: isActive ? 'primary.main' : 'text.secondary',
+                        color: isActive ? itemColor : 'text.secondary',
+                        fontSize: 24,
+                        transition: 'all 0.3s',
+                        '& > svg': {
+                          filter: isActive ? `drop-shadow(0 2px 4px ${alpha(itemColor, 0.4)})` : 'none',
+                        },
                       }}
                     >
                       {item.icon}
@@ -270,8 +339,24 @@ const Layout: React.FC = () => {
                       <ListItemText
                         primary={item.label}
                         primaryTypographyProps={{
-                          fontSize: '0.875rem',
-                          fontWeight: isActive ? 600 : 400,
+                          fontSize: '0.9rem',
+                          fontWeight: isActive ? 700 : 500,
+                          color: isActive ? itemColor : 'text.primary',
+                        }}
+                      />
+                    )}
+                    {isActive && (!collapsed || isMobile) && (
+                      <Box
+                        sx={{
+                          width: 8,
+                          height: 8,
+                          borderRadius: '50%',
+                          background: `radial-gradient(circle, ${itemColor}, ${alpha(itemColor, 0.5)})`,
+                          animation: 'pulse 2s ease-in-out infinite',
+                          '@keyframes pulse': {
+                            '0%, 100%': { opacity: 1, transform: 'scale(1)' },
+                            '50%': { opacity: 0.7, transform: 'scale(1.2)' },
+                          },
                         }}
                       />
                     )}
@@ -287,33 +372,38 @@ const Layout: React.FC = () => {
       <Box
         sx={{
           p: 2,
-          borderTop: '1px solid',
-          borderColor: 'divider',
+          borderTop: `1px solid ${alpha(theme.palette.divider, 0.5)}`,
           display: 'flex',
           alignItems: 'center',
           justifyContent: collapsed && !isMobile ? 'center' : 'flex-start',
           gap: 1.5,
+          background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.05)}, ${alpha(theme.palette.secondary.main, 0.05)})`,
+          backdropFilter: 'blur(10px)',
+          position: 'relative',
+          zIndex: 1,
         }}
       >
         <Avatar
           src={user?.avatarUrl}
           alt={user?.name}
           sx={{
-            width: 40,
-            height: 40,
-            bgcolor: 'primary.main',
-            fontSize: '0.875rem',
-            fontWeight: 600,
+            width: 44,
+            height: 44,
+            background: 'linear-gradient(135deg, #6366F1, #06B6D4)',
+            fontSize: '0.9rem',
+            fontWeight: 700,
+            boxShadow: `0 4px 12px ${alpha(theme.palette.primary.main, 0.3)}`,
+            border: `2px solid ${alpha(theme.palette.common.white, 0.8)}`,
           }}
         >
           {user?.name?.charAt(0).toUpperCase()}
         </Avatar>
         {(!collapsed || isMobile) && (
           <Box sx={{ flex: 1, minWidth: 0 }}>
-            <Typography variant="body2" sx={{ fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <Typography variant="body2" sx={{ fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {user?.name}
             </Typography>
-            <Typography variant="caption" sx={{ color: 'text.secondary', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block' }}>
+            <Typography variant="caption" sx={{ color: 'text.secondary', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block', fontWeight: 500 }}>
               {user?.email}
             </Typography>
           </Box>
@@ -353,7 +443,7 @@ const Layout: React.FC = () => {
 
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             {user && getRoleBadge(user.role)}
-            
+
             <Tooltip title="Notifications">
               <IconButton sx={{ color: 'text.secondary' }}>
                 <Badge badgeContent={3} color="error">
@@ -427,7 +517,7 @@ const Layout: React.FC = () => {
         ModalProps={{ keepMounted: true }}
         sx={{
           display: { xs: 'block', md: 'none' },
-          '& .MuiDrawer-paper': { 
+          '& .MuiDrawer-paper': {
             width: DRAWER_WIDTH,
             boxSizing: 'border-box',
           },

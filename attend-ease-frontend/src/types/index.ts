@@ -56,6 +56,10 @@ export interface AttendanceRecord {
   remarks?: string;
   markedBy?: number;
   markedByName?: string;
+  entryTime?: string; // HH:MM
+  exitTime?: string; // HH:MM
+  totalHours?: number;
+  workDescription?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -154,14 +158,14 @@ export interface DashboardStats {
   currentMonthAttendance?: AttendanceSummary;
   lastMonthSalary?: SalarySlip;
   pendingSalarySlips?: number;
-  
+
   // Admin Stats
   totalMembers?: number;
   activeMembers?: number;
   pendingApprovals?: number;
   monthlyPayroll?: number;
   attendanceRate?: number;
-  
+
   // Super Admin Stats
   totalLabs?: number;
   activeLabs?: number;
@@ -275,7 +279,7 @@ export interface MonthYear {
 export const getMonthOptions = (): MonthYear[] => {
   const months: MonthYear[] = [];
   const currentDate = new Date();
-  
+
   for (let i = 0; i < 12; i++) {
     const date = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
     months.push({
@@ -284,7 +288,7 @@ export const getMonthOptions = (): MonthYear[] => {
       label: date.toLocaleString('default', { month: 'long', year: 'numeric' }),
     });
   }
-  
+
   return months;
 };
 

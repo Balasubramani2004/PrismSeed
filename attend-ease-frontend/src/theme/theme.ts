@@ -1,78 +1,46 @@
 import { createTheme, responsiveFontSizes } from '@mui/material/styles';
 
 // Samsung Enterprise Design System Colors
-const samsungColors = {
-  primary: {
-    main: '#0066CC',
-    light: '#3384D6',
-    dark: '#004C99',
-    contrastText: '#FFFFFF',
-  },
-  secondary: {
-    main: '#00ADEF',
-    light: '#33BDF2',
-    dark: '#0087BC',
-    contrastText: '#FFFFFF',
-  },
-  success: {
-    main: '#28A745',
-    light: '#53B96A',
-    dark: '#1E7B34',
-    contrastText: '#FFFFFF',
-  },
-  warning: {
-    main: '#FFC107',
-    light: '#FFCD38',
-    dark: '#C79100',
-    contrastText: '#212529',
-  },
-  error: {
-    main: '#DC3545',
-    light: '#E35D6A',
-    dark: '#A71D2A',
-    contrastText: '#FFFFFF',
-  },
-  info: {
-    main: '#17A2B8',
-    light: '#45B4C6',
-    dark: '#117A8B',
-    contrastText: '#FFFFFF',
-  },
-  grey: {
-    50: '#F8F9FA',
-    100: '#F1F3F5',
-    200: '#E9ECEF',
-    300: '#DEE2E6',
-    400: '#CED4DA',
-    500: '#ADB5BD',
-    600: '#6C757D',
-    700: '#495057',
-    800: '#343A40',
-    900: '#212529',
-  },
-};
+
 
 // Create base theme
 let theme = createTheme({
   palette: {
-    mode: 'light',
-    primary: samsungColors.primary,
-    secondary: samsungColors.secondary,
-    success: samsungColors.success,
-    warning: samsungColors.warning,
-    error: samsungColors.error,
-    info: samsungColors.info,
-    grey: samsungColors.grey,
+    primary: {
+      main: "#6366F1",   // Indigo
+      light: "#818CF8",
+      dark: "#4F46E5",
+    },
+    secondary: {
+      main: "#06B6D4",   // Cyan/Teal
+      light: "#22D3EE",
+      dark: "#0891B2",
+    },
+    success: {
+      main: "#22C55E",   // Green
+      light: "#86EFAC",
+      dark: "#16A34A",
+    },
+    warning: {
+      main: "#F59E0B",   // Amber
+      light: "#FCD34D",
+      dark: "#D97706",
+    },
+    error: {
+      main: "#EF4444",   // Red
+      light: "#F87171",
+      dark: "#DC2626",
+    },
+    info: {
+      main: "#0EA5E9",   // Sky blue
+      light: "#38BDF8",
+      dark: "#0284C7",
+    },
     background: {
-      default: '#F8F9FA',
-      paper: '#FFFFFF',
+      default: "#F3F4F6",
+      paper: "#FFFFFF",
     },
-    text: {
-      primary: '#212529',
-      secondary: '#6C757D',
-      disabled: '#ADB5BD',
-    },
-    divider: '#DEE2E6',
+    divider: '#E5E7EB',
   },
   typography: {
     fontFamily: "'Roboto', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif",

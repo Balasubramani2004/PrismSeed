@@ -1,15 +1,12 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from "react";
 import {
   Box,
   Grid,
   Card,
   CardContent,
-  CardHeader,
   Typography,
-  Button,
   Chip,
   FormControl,
-  InputLabel,
   Select,
   MenuItem,
   Table,
@@ -20,522 +17,966 @@ import {
   TableRow,
   IconButton,
   Tooltip,
-  Divider,
-  Alert,
-  Skeleton,
   useTheme,
-  useMediaQuery,
   ToggleButton,
   ToggleButtonGroup,
-} from '@mui/material';
+  Paper,
+  alpha,
+  Fade,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Divider,
+  Button,
+} from "@mui/material";
+
 import {
   Download as DownloadIcon,
   CalendarMonth as CalendarIcon,
   ViewList as ListIcon,
   ViewModule as GridIcon,
-  Refresh as RefreshIcon,
   CheckCircle as CheckIcon,
   Cancel as CancelIcon,
   RemoveCircle as HalfIcon,
   Event as EventIcon,
   Lock as LockIcon,
-} from '@mui/icons-material';
-import { StatCard } from '@/components';
+  TrendingUp,
+  AccessTime,
+  DateRange,
+  ChevronLeft,
+  ChevronRight,
+} from "@mui/icons-material";
+
 import {
   AttendanceRecord,
   AttendanceStatus,
-  getStatusColor,
   getMonthOptions,
-} from '@/types';
-import { generateMockAttendanceRecords } from '@/services/mockData';
+} from "@/types";
+import { generateMockAttendanceRecords } from "@/services/mockData";
+
+/* =========================
+   REUSABLE STYLES (BETTER UX)
+========================= */
+
+const GlassCard = ({ children, sx, ...props }: any) => {
+  const theme = useTheme();
+
+  return (
+    <Card
+      elevation={0}
+      sx={{
+        background: `linear-gradient(135deg, 
+          ${alpha(theme.palette.primary.light, 0.08)} 0%, 
+          ${alpha(theme.palette.background.paper, 0.95)} 30%,
+          ${alpha(theme.palette.background.paper, 0.95)} 70%,
+          ${alpha(theme.palette.secondary.light, 0.08)} 100%)`,
+        backdropFilter: "blur(20px) saturate(180%)",
+        WebkitBackdropFilter: "blur(20px) saturate(180%)",
+        border: `1px solid ${alpha(theme.palette.primary.main, 0.15)}`,
+        boxShadow: `
+          0 8px 32px ${alpha(theme.palette.primary.main, 0.1)}, 
+          inset 0 1px 0 ${alpha(theme.palette.common.white, 0.6)}
+        `,
+        borderRadius: 3,
+        position: "relative",
+        overflow: "hidden",
+        "&::before": {
+          content: '""',
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          height: "2px",
+          background: `linear-gradient(90deg, 
+            ${alpha(theme.palette.primary.main, 0.3)}, 
+            ${alpha(theme.palette.secondary.main, 0.3)}, 
+            ${alpha(theme.palette.primary.main, 0.3)})`,
+          backgroundSize: "200% 100%",
+          animation: "gradientShift 3s ease infinite",
+        },
+        "@keyframes gradientShift": {
+          "0%, 100%": { backgroundPosition: "0% 0%" },
+          "50%": { backgroundPosition: "100% 0%" },
+        },
+        ...sx,
+      }}
+      {...props}
+    >
+      {children}
+    </Card>
+  );
+};
+
+const ModernStatCard = ({ title, value, icon, color }: any) => {
+  const theme = useTheme();
+  const main = (theme.palette as any)[color]?.main || theme.palette.primary.main;
+
+  return (
+    <GlassCard
+      sx={{
+        height: "100%",
+        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+        position: "relative",
+        overflow: "hidden",
+        "&:hover": {
+          transform: "translateY(-6px)",
+          boxShadow: theme.shadows[12],
+          "&::after": {
+            animation: "shimmer 1.5s ease-in-out",
+          },
+        },
+        "&::after": {
+          content: '""',
+          position: "absolute",
+          top: "-50%",
+          left: "-50%",
+          width: "200%",
+          height: "200%",
+          background: `linear-gradient(45deg, transparent 30%, ${alpha(main, 0.2)} 50%, transparent 70%)`,
+          transform: "translateX(-100%)",
+        },
+        "@keyframes shimmer": {
+          "0%": { transform: "translateX(-100%)" },
+          "100%": { transform: "translateX(100%)" },
+        },
+      }}
+    >
+      <CardContent sx={{ p: 3, position: "relative", zIndex: 1 }}>
+        <Box
+          sx={{
+            p: 1.5,
+            width: 48,
+            borderRadius: 2.5,
+            bgcolor: alpha(main, 0.12),
+            color: main,
+            mb: 2,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          {icon}
+        </Box>
+
+        <Typography variant="h4" fontWeight={800} sx={{ mb: 0.5 }}>
+          {value}
+        </Typography>
+        <Typography variant="body2" color="text.secondary" fontWeight={600}>
+          {title}
+        </Typography>
+      </CardContent>
+    </GlassCard>
+  );
+};
+
+const ProgressStatCard = ({ title, value, icon, color, percentage }: any) => {
+  const theme = useTheme();
+  const main = (theme.palette as any)[color]?.main || theme.palette.primary.main;
+  const size = 80;
+  const strokeWidth = 6;
+  const radius = (size - strokeWidth) / 2;
+  const circumference = radius * 2 * Math.PI;
+  const offset = circumference - (percentage / 100) * circumference;
+
+  return (
+    <GlassCard
+      sx={{
+        height: "100%",
+        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+        position: "relative",
+        overflow: "hidden",
+        "&:hover": {
+          transform: "translateY(-6px)",
+          boxShadow: theme.shadows[12],
+          "&::after": {
+            animation: "shimmer 1.5s ease-in-out",
+          },
+        },
+        "&::after": {
+          content: '""',
+          position: "absolute",
+          top: "-50%",
+          left: "-50%",
+          width: "200%",
+          height: "200%",
+          background: `linear-gradient(45deg, transparent 30%, ${alpha(main, 0.2)} 50%, transparent 70%)`,
+          transform: "translateX(-100%)",
+        },
+        "@keyframes shimmer": {
+          "0%": { transform: "translateX(-100%)" },
+          "100%": { transform: "translateX(100%)" },
+        },
+      }}
+    >
+      <CardContent sx={{ p: 3, position: "relative", zIndex: 1 }}>
+        <Box display="flex" justifyContent="space-between" alignItems="flex-start">
+          <Box flex={1}>
+            <Box
+              sx={{
+                p: 1.5,
+                width: 48,
+                borderRadius: 2.5,
+                bgcolor: alpha(main, 0.12),
+                color: main,
+                mb: 2,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              {icon}
+            </Box>
+
+            <Typography variant="h4" fontWeight={800} sx={{ mb: 0.5 }}>
+              {value}
+            </Typography>
+            <Typography variant="body2" color="text.secondary" fontWeight={600}>
+              {title}
+            </Typography>
+          </Box>
+
+          <Box position="relative" display="inline-flex">
+            <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }}>
+              <circle
+                cx={size / 2}
+                cy={size / 2}
+                r={radius}
+                fill="none"
+                stroke={alpha(main, 0.1)}
+                strokeWidth={strokeWidth}
+              />
+              <circle
+                cx={size / 2}
+                cy={size / 2}
+                r={radius}
+                fill="none"
+                stroke={main}
+                strokeWidth={strokeWidth}
+                strokeDasharray={circumference}
+                strokeDashoffset={offset}
+                strokeLinecap="round"
+                style={{ transition: "stroke-dashoffset 0.8s ease" }}
+              />
+            </svg>
+            <Box
+              sx={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                bottom: 0,
+                right: 0,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Typography variant="caption" fontWeight={700} color={main}>
+                {percentage}%
+              </Typography>
+            </Box>
+          </Box>
+        </Box>
+      </CardContent>
+    </GlassCard>
+  );
+};
+
+/* =========================
+   MAIN COMPONENT (ADVANCED)
+========================= */
 
 const AttendanceSummary: React.FC = () => {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  
-  const currentDate = new Date();
-  const [selectedMonth, setSelectedMonth] = useState(currentDate.getMonth() + 1);
-  const [selectedYear, setSelectedYear] = useState(currentDate.getFullYear());
-  const [viewMode, setViewMode] = useState<'calendar' | 'list'>('calendar');
+
+  const today = new Date();
+  const [selectedMonth, setSelectedMonth] = useState(today.getMonth() + 1);
+  const [selectedYear, setSelectedYear] = useState(today.getFullYear());
+  const [viewMode, setViewMode] = useState<"calendar" | "list">("calendar");
+  const [transition, setTransition] = useState(false);
 
   const monthOptions = getMonthOptions();
 
-  // Use mock data instead of API
-  const attendance = useMemo(() => 
-    generateMockAttendanceRecords(selectedYear, selectedMonth),
+  // Memoized data
+  const attendance = useMemo(
+    () => generateMockAttendanceRecords(selectedYear, selectedMonth),
     [selectedYear, selectedMonth]
   );
-  const isLoading = false;
 
-  const handleMonthChange = (value: string) => {
-    const [year, month] = value.split('-').map(Number);
-    setSelectedYear(year);
-    setSelectedMonth(month);
-  };
+  // Calculate attendance streak
+  const attendanceStreak = useMemo(() => {
+    const sorted = [...attendance.records]
+      .filter(r => r.status === "FULL")
+      .sort((a, b) => +new Date(b.date) - +new Date(a.date));
 
-  const getStatusIcon = (status: AttendanceStatus) => {
-    switch (status) {
-      case 'FULL':
-        return <CheckIcon sx={{ color: 'success.main', fontSize: 20 }} />;
-      case 'HALF':
-        return <HalfIcon sx={{ color: 'warning.main', fontSize: 20 }} />;
-      case 'LOP':
-        return <CancelIcon sx={{ color: 'error.main', fontSize: 20 }} />;
-      case 'HOLIDAY':
-        return <EventIcon sx={{ color: 'info.main', fontSize: 20 }} />;
-      case 'WEEKEND':
-        return <EventIcon sx={{ color: 'text.disabled', fontSize: 20 }} />;
-      default:
-        return undefined;
+    let streak = 0;
+    for (const record of sorted) {
+      const date = new Date(record.date);
+      const expected = new Date(today);
+      expected.setDate(today.getDate() - streak);
+      if (date.toDateString() === expected.toDateString()) {
+        streak++;
+      } else {
+        break;
+      }
     }
+    return streak;
+  }, [attendance, today]);
+
+  const handleMonthChange = useCallback((value: string) => {
+    setTransition(true);
+    setTimeout(() => {
+      const [y, m] = value.split("-").map(Number);
+      setSelectedYear(y);
+      setSelectedMonth(m);
+      setTransition(false);
+    }, 150);
+  }, []);
+
+  const navigateMonth = useCallback((direction: "prev" | "next") => {
+    setTransition(true);
+    setTimeout(() => {
+      if (direction === "prev") {
+        if (selectedMonth === 1) {
+          setSelectedMonth(12);
+          setSelectedYear(selectedYear - 1);
+        } else {
+          setSelectedMonth(selectedMonth - 1);
+        }
+      } else {
+        if (selectedMonth === 12) {
+          setSelectedMonth(1);
+          setSelectedYear(selectedYear + 1);
+        } else {
+          setSelectedMonth(selectedMonth + 1);
+        }
+      }
+      setTransition(false);
+    }, 150);
+  }, [selectedMonth, selectedYear]);
+
+  const getStatusConfig = (status: AttendanceStatus) => {
+    const map: any = {
+      FULL: { icon: <CheckIcon fontSize="small" />, label: "Full Day", color: "success", bgColor: alpha(theme.palette.success.main, 0.12) },
+      HALF: { icon: <HalfIcon fontSize="small" />, label: "Half Day", color: "warning", bgColor: alpha(theme.palette.warning.main, 0.12) },
+      LOP: { icon: <CancelIcon fontSize="small" />, label: "Loss of Pay", color: "error", bgColor: alpha(theme.palette.error.main, 0.12) },
+      HOLIDAY: { icon: <EventIcon fontSize="small" />, label: "Holiday", color: "info", bgColor: alpha(theme.palette.info.main, 0.12) },
+      WEEKEND: { icon: <EventIcon fontSize="small" />, label: "Weekend", color: "grey", bgColor: "transparent" },
+    };
+    return map[status] || map.HOLIDAY;
   };
 
-  const getStatusLabel = (status: AttendanceStatus) => {
-    switch (status) {
-      case 'FULL':
-        return 'Full Day';
-      case 'HALF':
-        return 'Half Day';
-      case 'LOP':
-        return 'Loss of Pay';
-      case 'HOLIDAY':
-        return 'Holiday';
-      case 'WEEKEND':
-        return 'Weekend';
-      default:
-        return status;
-    }
-  };
-
-  // Generate calendar grid
-  const generateCalendarGrid = () => {
+  // Calendar generator
+  const calendarDays = useMemo(() => {
     const firstDay = new Date(selectedYear, selectedMonth - 1, 1);
     const lastDay = new Date(selectedYear, selectedMonth, 0);
-    const startDay = firstDay.getDay(); // 0 = Sunday
+    const startDay = firstDay.getDay();
     const totalDays = lastDay.getDate();
 
-    const days: (AttendanceRecord | null)[] = [];
-    
-    // Add empty cells for days before the first of the month
-    for (let i = 0; i < startDay; i++) {
-      days.push(null);
-    }
+    const grid: (AttendanceRecord | null)[] = Array(startDay).fill(null);
 
-    // Add days of the month
-    for (let day = 1; day <= totalDays; day++) {
-      const dateStr = `${selectedYear}-${String(selectedMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-      const record = attendance?.records.find((r) => r.date === dateStr);
-      days.push(record || {
-        id: 0,
-        labMemberId: 0,
-        date: dateStr,
-        status: new Date(dateStr).getDay() === 0 || new Date(dateStr).getDay() === 6 ? 'WEEKEND' : 'LOP',
-        createdAt: '',
-        updatedAt: '',
-      } as AttendanceRecord);
-    }
+    for (let d = 1; d <= totalDays; d++) {
+      const date = `${selectedYear}-${String(selectedMonth).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
 
-    return days;
+      const record =
+        attendance.records.find((r) => r.date === date) ||
+        ({
+          id: 0,
+          labMemberId: 0,
+          date,
+          status:
+            new Date(date).getDay() === 0 || new Date(date).getDay() === 6
+              ? "WEEKEND"
+              : "LOP",
+          createdAt: "",
+          updatedAt: "",
+        } as AttendanceRecord);
+
+      grid.push(record);
+    }
+    return grid;
+  }, [attendance, selectedMonth, selectedYear]);
+
+  const [selectedRecord, setSelectedRecord] = useState<AttendanceRecord | null>(null);
+  const [detailsOpen, setDetailsOpen] = useState(false);
+
+  const handleDayClick = (record: AttendanceRecord) => {
+    setSelectedRecord(record);
+    setDetailsOpen(true);
   };
 
-  const calendarDays = generateCalendarGrid();
-  const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
   return (
-    <Box>
-      {/* Header */}
+    <Box sx={{ position: "relative", maxWidth: 1600, mx: "auto", p: { xs: 2, md: 4 } }}>
+      {/* ADVANCED ANIMATED BACKGROUND */}
       <Box
         sx={{
-          display: 'flex',
-          flexDirection: { xs: 'column', sm: 'row' },
-          justifyContent: 'space-between',
-          alignItems: { xs: 'stretch', sm: 'center' },
-          gap: 2,
-          mb: 4,
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: -1,
+          overflow: "hidden",
+          background: `linear-gradient(135deg, 
+            ${alpha(theme.palette.primary.light, 0.03)} 0%, 
+            ${alpha(theme.palette.background.default, 1)} 50%,
+            ${alpha(theme.palette.secondary.light, 0.03)} 100%)`,
         }}
       >
-        <Box>
-          <Typography variant="h4" sx={{ fontWeight: 700 }}>
-            My Attendance
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Track your daily attendance and view summaries
-          </Typography>
-        </Box>
+        {/* Animated Mesh Gradient Blobs */}
+        <Box
+          sx={{
+            position: "absolute",
+            top: "-10%",
+            left: "-10%",
+            width: "500px",
+            height: "500px",
+            borderRadius: "50%",
+            background: `radial-gradient(circle, ${alpha(theme.palette.primary.main, 0.15)} 0%, transparent 70%)`,
+            filter: "blur(60px)",
+            animation: "float1 20s ease-in-out infinite",
+            "@keyframes float1": {
+              "0%, 100%": { transform: "translate(0, 0) scale(1)" },
+              "33%": { transform: "translate(100px, -50px) scale(1.1)" },
+              "66%": { transform: "translate(-50px, 100px) scale(0.9)" },
+            },
+          }}
+        />
 
-        <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-          {/* Month Selector */}
-          <FormControl size="small" sx={{ minWidth: 180 }}>
-            <InputLabel>Month</InputLabel>
-            <Select
-              value={`${selectedYear}-${selectedMonth}`}
-              label="Month"
-              onChange={(e) => handleMonthChange(e.target.value)}
-            >
-              {monthOptions.map((option) => (
-                <MenuItem key={`${option.year}-${option.month}`} value={`${option.year}-${option.month}`}>
-                  {option.label}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+        <Box
+          sx={{
+            position: "absolute",
+            top: "20%",
+            right: "-5%",
+            width: "400px",
+            height: "400px",
+            borderRadius: "50%",
+            background: `radial-gradient(circle, ${alpha(theme.palette.secondary.main, 0.12)} 0%, transparent 70%)`,
+            filter: "blur(50px)",
+            animation: "float2 25s ease-in-out infinite",
+            "@keyframes float2": {
+              "0%, 100%": { transform: "translate(0, 0) rotate(0deg)" },
+              "50%": { transform: "translate(-100px, 100px) rotate(180deg)" },
+            },
+          }}
+        />
 
-          {/* View Toggle */}
-          <ToggleButtonGroup
-            value={viewMode}
-            exclusive
-            onChange={(_, value) => value && setViewMode(value)}
-            size="small"
-          >
-            <ToggleButton value="calendar">
-              <Tooltip title="Calendar View">
-                <GridIcon />
-              </Tooltip>
-            </ToggleButton>
-            <ToggleButton value="list">
-              <Tooltip title="List View">
-                <ListIcon />
-              </Tooltip>
-            </ToggleButton>
-          </ToggleButtonGroup>
+        <Box
+          sx={{
+            position: "absolute",
+            bottom: "10%",
+            left: "30%",
+            width: "350px",
+            height: "350px",
+            borderRadius: "50%",
+            background: `radial-gradient(circle, ${alpha(theme.palette.info.main, 0.1)} 0%, transparent 70%)`,
+            filter: "blur(45px)",
+            animation: "float3 18s ease-in-out infinite",
+            "@keyframes float3": {
+              "0%, 100%": { transform: "translate(0, 0) scale(1)" },
+              "50%": { transform: "translate(150px, -80px) scale(1.15)" },
+            },
+          }}
+        />
 
-          {/* Export Button */}
-          <Button
-            variant="outlined"
-            startIcon={<DownloadIcon />}
-            onClick={() => alert('Export feature (demo mode)')}
-          >
-            Export
-          </Button>
+        <Box
+          sx={{
+            position: "absolute",
+            bottom: "-10%",
+            right: "20%",
+            width: "450px",
+            height: "450px",
+            borderRadius: "50%",
+            background: `radial-gradient(circle, ${alpha(theme.palette.success.main, 0.08)} 0%, transparent 70%)`,
+            filter: "blur(55px)",
+            animation: "float4 22s ease-in-out infinite",
+            "@keyframes float4": {
+              "0%, 100%": { transform: "translate(0, 0)" },
+              "33%": { transform: "translate(-80px, -120px)" },
+              "66%": { transform: "translate(80px, 60px)" },
+            },
+          }}
+        />
 
-          <Tooltip title="Refresh">
-            <IconButton sx={{ bgcolor: 'background.paper', boxShadow: 1 }}>
-              <RefreshIcon />
-            </IconButton>
-          </Tooltip>
-        </Box>
+        {/* Floating Particles */}
+        {[...Array(12)].map((_, i) => (
+          <Box
+            key={i}
+            sx={{
+              position: "absolute",
+              width: `${Math.random() * 6 + 2}px`,
+              height: `${Math.random() * 6 + 2}px`,
+              borderRadius: "50%",
+              bgcolor: alpha(theme.palette.primary.main, Math.random() * 0.3 + 0.1),
+              top: `${Math.random() * 100}%`,
+              left: `${Math.random() * 100}%`,
+              animation: `particle${i} ${Math.random() * 10 + 15}s linear infinite`,
+              [`@keyframes particle${i}`]: {
+                "0%": {
+                  transform: `translate(0, 0) scale(1)`,
+                  opacity: 0,
+                },
+                "10%": {
+                  opacity: 1,
+                },
+                "90%": {
+                  opacity: 1,
+                },
+                "100%": {
+                  transform: `translate(${Math.random() * 200 - 100}px, ${Math.random() * 200 - 100}px) scale(${Math.random() + 0.5})`,
+                  opacity: 0,
+                },
+              },
+            }}
+          />
+        ))}
+
+        {/* Subtle Grid Pattern */}
+        <Box
+          sx={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundImage: `
+              linear-gradient(${alpha(theme.palette.primary.main, 0.02)} 1px, transparent 1px),
+              linear-gradient(90deg, ${alpha(theme.palette.primary.main, 0.02)} 1px, transparent 1px)
+            `,
+            backgroundSize: "50px 50px",
+            opacity: 0.5,
+          }}
+        />
       </Box>
+      {/* HEADER TOOLBAR */}
+      <GlassCard sx={{ mb: 4, p: 2 }}>
+        <Box
+          display="flex"
+          flexDirection={{ xs: "column", md: "row" }}
+          justifyContent="space-between"
+          alignItems="center"
+          gap={2}
+        >
+          <Box display="flex" alignItems="center" gap={2}>
+            <Box
+              sx={{
+                width: 48,
+                height: 48,
+                borderRadius: "50%",
+                bgcolor: "primary.main",
+                color: "white",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <DateRange />
+            </Box>
+            <Box>
+              <Typography variant="h5" fontWeight={800}>
+                My Attendance
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Monthly performance & availability
+              </Typography>
+            </Box>
+          </Box>
 
-      {/* Stats Cards */}
+          <Box display="flex" alignItems="center" gap={2} flexWrap="wrap">
+            {attendanceStreak > 0 && (
+              <Chip
+                icon={<TrendingUp />}
+                label={`${attendanceStreak} day streak! 🔥`}
+                color="success"
+                variant="filled"
+                sx={{ fontWeight: 700 }}
+              />
+            )}
+
+            <Box display="flex" alignItems="center" gap={1}>
+              <IconButton size="small" onClick={() => navigateMonth("prev")} sx={{ bgcolor: "background.paper", boxShadow: 1 }}>
+                <ChevronLeft />
+              </IconButton>
+
+              <FormControl size="small" sx={{ minWidth: 200 }}>
+                <Select
+                  value={`${selectedYear}-${selectedMonth}`}
+                  onChange={(e) => handleMonthChange(e.target.value)}
+                  sx={{ borderRadius: 2.5, boxShadow: 1 }}
+                >
+                  {monthOptions.map((o) => (
+                    <MenuItem key={`${o.year}-${o.month}`} value={`${o.year}-${o.month}`}>
+                      {o.label}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+              <IconButton size="small" onClick={() => navigateMonth("next")} sx={{ bgcolor: "background.paper", boxShadow: 1 }}>
+                <ChevronRight />
+              </IconButton>
+            </Box>
+
+            <ToggleButtonGroup
+              value={viewMode}
+              exclusive
+              onChange={(_, v) => v && setViewMode(v)}
+              size="small"
+            >
+              <ToggleButton value="calendar">
+                <GridIcon sx={{ mr: 1 }} /> Grid
+              </ToggleButton>
+              <ToggleButton value="list">
+                <ListIcon sx={{ mr: 1 }} /> List
+              </ToggleButton>
+            </ToggleButtonGroup>
+
+            <IconButton onClick={() => alert("Exporting...")} sx={{ bgcolor: "background.paper", boxShadow: 1 }}>
+              <DownloadIcon color="primary" />
+            </IconButton>
+          </Box>
+        </Box>
+      </GlassCard>
+
+      {/* HERO STATS */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={6} sm={4} md={2}>
-          <StatCard
+        <Grid item xs={12} sm={6} md={2.4}>
+          <ModernStatCard
             title="Working Days"
-            value={attendance?.summary.workingDays || 0}
+            value={attendance.summary.workingDays}
             icon={<CalendarIcon />}
             color="primary"
-            loading={isLoading}
           />
         </Grid>
-        <Grid item xs={6} sm={4} md={2}>
-          <StatCard
-            title="Full Days"
-            value={attendance?.summary.fullDays || 0}
+        <Grid item xs={12} sm={6} md={2.4}>
+          <ModernStatCard
+            title="Present"
+            value={attendance.summary.fullDays}
             icon={<CheckIcon />}
             color="success"
-            loading={isLoading}
           />
         </Grid>
-        <Grid item xs={6} sm={4} md={2}>
-          <StatCard
+        <Grid item xs={12} sm={6} md={2.4}>
+          <ModernStatCard
             title="Half Days"
-            value={attendance?.summary.halfDays || 0}
+            value={attendance.summary.halfDays}
             icon={<HalfIcon />}
             color="warning"
-            loading={isLoading}
           />
         </Grid>
-        <Grid item xs={6} sm={4} md={2}>
-          <StatCard
-            title="LOP Days"
-            value={attendance?.summary.lopDays || 0}
+        <Grid item xs={12} sm={6} md={2.4}>
+          <ModernStatCard
+            title="Leaves / LOP"
+            value={attendance.summary.lopDays}
             icon={<CancelIcon />}
             color="error"
-            loading={isLoading}
           />
         </Grid>
-        <Grid item xs={6} sm={4} md={2}>
-          <StatCard
-            title="Holidays"
-            value={attendance?.summary.holidays || 0}
-            icon={<EventIcon />}
-            color="info"
-            loading={isLoading}
-          />
-        </Grid>
-        <Grid item xs={6} sm={4} md={2}>
-          <StatCard
-            title="Attendance %"
-            value={`${attendance?.summary.attendancePercentage?.toFixed(1) || 0}%`}
-            icon={<CalendarIcon />}
+        <Grid item xs={12} sm={6} md={2.4}>
+          <ProgressStatCard
+            title="Attendance"
+            value={`${attendance.summary.attendancePercentage.toFixed(0)}%`}
+            percentage={attendance.summary.attendancePercentage}
+            icon={<TrendingUp />}
             color="secondary"
-            loading={isLoading}
           />
         </Grid>
       </Grid>
 
-      {/* Frozen Status Alert */}
-      {attendance?.summary.isFrozen && (
-        <Alert
-          severity="info"
-          icon={<LockIcon />}
-          sx={{ mb: 3, borderRadius: 2 }}
-        >
-          <Typography variant="body2">
-            <strong>Attendance Frozen:</strong> This month's attendance has been finalized on{' '}
-            {new Date(attendance.summary.frozenAt!).toLocaleDateString()}
-            {attendance.summary.frozenBy && ` by ${attendance.summary.frozenBy}`}
-          </Typography>
-        </Alert>
-      )}
+      <Fade in>
+        <Box>
+          {viewMode === "calendar" ? (
+            <GlassCard sx={{ p: 4 }}>
+              {attendance.summary.isFrozen && (
+                <Box
+                  sx={{
+                    mb: 3,
+                    p: 2,
+                    borderRadius: 2,
+                    bgcolor: alpha(theme.palette.info.main, 0.08),
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 2,
+                  }}
+                >
+                  <LockIcon color="info" />
+                  <Typography variant="subtitle2" color="info.main">
+                    Attendance Frozen on{" "}
+                    {new Date(attendance.summary.frozenAt!).toLocaleDateString()}
+                  </Typography>
+                </Box>
+              )}
 
-      {/* Calendar View */}
-      {viewMode === 'calendar' && (
-        <Card>
-          <CardHeader
-            title={
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <CalendarIcon color="primary" />
-                <Typography variant="h6">
-                  {new Date(selectedYear, selectedMonth - 1).toLocaleString('default', {
-                    month: 'long',
-                    year: 'numeric',
-                  })}
-                </Typography>
-              </Box>
-            }
-          />
-          <CardContent>
-            {isLoading ? (
-              <Skeleton variant="rectangular" height={400} sx={{ borderRadius: 2 }} />
-            ) : (
-              <Box>
-                {/* Week Headers */}
-                <Grid container sx={{ mb: 1 }}>
-                  {weekDays.map((day) => (
-                    <Grid
-                      item
-                      xs={12 / 7}
-                      key={day}
-                      sx={{
-                        textAlign: 'center',
-                        py: 1,
-                        fontWeight: 600,
-                        color: day === 'Sun' || day === 'Sat' ? 'text.secondary' : 'text.primary',
-                        fontSize: '0.75rem',
-                      }}
-                    >
-                      {isMobile ? day.charAt(0) : day}
-                    </Grid>
-                  ))}
-                </Grid>
+              <Grid container sx={{ mb: 2 }}>
+                {weekDays.map((day) => (
+                  <Grid item xs={12 / 7} key={day} textAlign="center">
+                    <Typography variant="caption" fontWeight={700}>
+                      {day}
+                    </Typography>
+                  </Grid>
+                ))}
+              </Grid>
 
-                {/* Calendar Days */}
-                <Grid container spacing={0.5}>
-                  {calendarDays.map((record, index) => (
-                    <Grid item xs={12 / 7} key={index}>
-                      {record ? (
-                        <Tooltip
-                          title={
-                            <Box>
-                              <Typography variant="body2">
-                                {new Date(record.date).toLocaleDateString('default', {
-                                  weekday: 'long',
-                                  year: 'numeric',
-                                  month: 'long',
-                                  day: 'numeric',
-                                })}
-                              </Typography>
-                              <Typography variant="caption">{getStatusLabel(record.status)}</Typography>
-                              {record.remarks && (
-                                <Typography variant="caption" display="block">
-                                  Note: {record.remarks}
-                                </Typography>
-                              )}
-                            </Box>
-                          }
-                          arrow
-                        >
-                          <Box
+              <Fade in={!transition} timeout={300}>
+                <Grid container spacing={2}>
+                  {calendarDays.map((record, i) => {
+                    if (!record) return <Grid item xs={12 / 7} key={i} />;
+
+                    const cfg = getStatusConfig(record.status);
+                    const isToday = record.date === today.toISOString().split("T")[0];
+
+                    return (
+                      <Grid item xs={12 / 7} key={i}>
+                        <Tooltip title={`${cfg.label} - ${new Date(record.date).toDateString()}`} arrow placement="top">
+                          <Paper
+                            onClick={() => handleDayClick(record)}
+                            elevation={isToday ? 4 : 0}
                             sx={{
-                              aspectRatio: '1',
-                              display: 'flex',
-                              flexDirection: 'column',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              borderRadius: 2,
-                              cursor: 'pointer',
-                              transition: 'all 0.2s',
-                              bgcolor:
-                                record.status === 'FULL'
-                                  ? 'rgba(40, 167, 69, 0.12)'
-                                  : record.status === 'HALF'
-                                  ? 'rgba(255, 193, 7, 0.12)'
-                                  : record.status === 'LOP'
-                                  ? 'rgba(220, 53, 69, 0.12)'
-                                  : record.status === 'HOLIDAY'
-                                  ? 'rgba(23, 162, 184, 0.12)'
-                                  : 'rgba(0, 0, 0, 0.04)',
-                              border: '1px solid',
-                              borderColor:
-                                record.status === 'FULL'
-                                  ? 'success.light'
-                                  : record.status === 'HALF'
-                                  ? 'warning.light'
-                                  : record.status === 'LOP'
-                                  ? 'error.light'
-                                  : record.status === 'HOLIDAY'
-                                  ? 'info.light'
-                                  : 'divider',
-                              '&:hover': {
-                                transform: 'scale(1.05)',
-                                boxShadow: 1,
+                              height: { xs: 90, sm: 130 },
+                              p: 2,
+                              borderRadius: 3,
+                              border: "2px solid",
+                              borderColor: isToday ? "primary.main" : alpha(cfg.color === 'grey' ? theme.palette.grey[400] : theme.palette[cfg.color as 'success' | 'warning' | 'error' | 'info']?.main || theme.palette.primary.main, 0.2),
+                              background: record.status === "WEEKEND"
+                                ? `linear-gradient(135deg, ${alpha(theme.palette.grey[400], 0.03)} 0%, ${alpha(theme.palette.grey[300], 0.05)} 100%)`
+                                : `linear-gradient(135deg, 
+                                    ${alpha(theme.palette[cfg.color as 'success' | 'warning' | 'error' | 'info']?.light || theme.palette.primary.light, 0.1)} 0%, 
+                                    ${alpha(theme.palette.background.paper, 0.95)} 50%,
+                                    ${alpha(theme.palette[cfg.color as 'success' | 'warning' | 'error' | 'info']?.main || theme.palette.primary.main, 0.05)} 100%)`,
+                              backdropFilter: "blur(10px)",
+                              cursor: "pointer",
+                              position: "relative",
+                              overflow: "hidden",
+                              transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                              "&:hover": {
+                                transform: record.status !== "WEEKEND" ? "translateY(-6px) scale(1.02)" : "none",
+                                boxShadow: record.status !== "WEEKEND" ? 10 : 0,
+                                borderColor: record.status !== "WEEKEND" ? `${cfg.color}.main` : "divider",
+                                background: record.status !== "WEEKEND"
+                                  ? `linear-gradient(135deg, 
+                                      ${alpha(theme.palette[cfg.color as 'success' | 'warning' | 'error' | 'info']?.main || theme.palette.primary.main, 0.2)} 0%, 
+                                      ${alpha(theme.palette[cfg.color as 'success' | 'warning' | 'error' | 'info']?.light || theme.palette.primary.light, 0.15)} 100%)`
+                                  : undefined,
+                                "& .day-number": { color: `${cfg.color}.main` },
+                                "&::before": record.status !== "WEEKEND" ? {
+                                  content: '""',
+                                  position: "absolute",
+                                  top: 0,
+                                  left: 0,
+                                  right: 0,
+                                  bottom: 0,
+                                  background: `radial-gradient(circle, ${alpha(theme.palette[cfg.color as 'success' | 'warning' | 'error' | 'info']?.main || theme.palette.primary.main, 0.15)} 0%, transparent 70%)`,
+                                  opacity: 0,
+                                  animation: "ripple 0.6s ease-out",
+                                } : {},
+                              },
+                              "@keyframes ripple": {
+                                "0%": { opacity: 1, transform: "scale(0)" },
+                                "100%": { opacity: 0, transform: "scale(2.5)" },
                               },
                             }}
                           >
-                            <Typography
-                              variant="body2"
-                              sx={{
-                                fontWeight: 600,
-                                color:
-                                  record.status === 'WEEKEND'
-                                    ? 'text.disabled'
-                                    : 'text.primary',
-                              }}
-                            >
-                              {new Date(record.date).getDate()}
-                            </Typography>
-                            {!isMobile && getStatusIcon(record.status)}
-                          </Box>
-                        </Tooltip>
-                      ) : (
-                        <Box sx={{ aspectRatio: '1' }} />
-                      )}
-                    </Grid>
-                  ))}
-                </Grid>
+                            {isToday && (
+                              <Box
+                                sx={{
+                                  position: "absolute",
+                                  top: 0,
+                                  right: 0,
+                                  bgcolor: "primary.main",
+                                  color: "white",
+                                  fontSize: "0.6rem",
+                                  px: 1,
+                                  py: 0.3,
+                                  borderRadius: "0 0 0 8px",
+                                  fontWeight: 700,
+                                }}
+                              >
+                                TODAY
+                              </Box>
+                            )}
 
-                {/* Legend */}
-                <Divider sx={{ my: 3 }} />
-                <Box
-                  sx={{
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    gap: 2,
-                    justifyContent: 'center',
-                  }}
-                >
-                  {[
-                    { status: 'FULL' as AttendanceStatus, label: 'Full Day' },
-                    { status: 'HALF' as AttendanceStatus, label: 'Half Day' },
-                    { status: 'LOP' as AttendanceStatus, label: 'LOP' },
-                    { status: 'HOLIDAY' as AttendanceStatus, label: 'Holiday' },
-                    { status: 'WEEKEND' as AttendanceStatus, label: 'Weekend' },
-                  ].map(({ status, label }) => (
-                    <Box
-                      key={status}
-                      sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}
-                    >
-                      {getStatusIcon(status)}
-                      <Typography variant="caption" color="text.secondary">
-                        {label}
+                            <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={1}>
+                              <Typography
+                                className="day-number"
+                                variant="h6"
+                                fontWeight={700}
+                                sx={{
+                                  color: record.status === "WEEKEND" ? "text.disabled" : "text.primary",
+                                  transition: "color 0.2s",
+                                }}
+                              >
+                                {new Date(record.date).getDate()}
+                              </Typography>
+                              <Box sx={{ color: `${cfg.color}.main` }}>
+                                {cfg.icon}
+                              </Box>
+                            </Box>
+
+                            {record.status !== "WEEKEND" && (
+                              <Box mt="auto">
+                                <Chip
+                                  label={cfg.label}
+                                  size="small"
+                                  color={cfg.color as any}
+                                  sx={{
+                                    width: "100%",
+                                    fontSize: "0.65rem",
+                                    fontWeight: 700,
+                                    height: 22,
+                                  }}
+                                />
+                              </Box>
+                            )}
+                          </Paper>
+                        </Tooltip>
+                      </Grid>
+                    );
+                  })}
+                </Grid>
+              </Fade>
+            </GlassCard>
+          ) : (
+            <GlassCard>
+              <TableContainer>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Date</TableCell>
+                      <TableCell>Status</TableCell>
+                      <TableCell>Remarks</TableCell>
+                      <TableCell>Logged By</TableCell>
+                    </TableRow>
+                  </TableHead>
+
+                  <TableBody>
+                    {attendance.records
+                      .sort((a, b) => +new Date(b.date) - +new Date(a.date))
+                      .map((r) => {
+                        const cfg = getStatusConfig(r.status);
+                        return (
+                          <TableRow key={r.id}>
+                            <TableCell>
+                              {new Date(r.date).toDateString()}
+                            </TableCell>
+                            <TableCell>
+                              <Chip label={cfg.label} color={cfg.color as any} />
+                            </TableCell>
+                            <TableCell>{r.remarks || "—"}</TableCell>
+                            <TableCell>
+                              <Box display="flex" alignItems="center" gap={1}>
+                                <AccessTime fontSize="small" />
+                                {r.markedByName || "System"}
+                              </Box>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </GlassCard>
+          )}
+        </Box>
+      </Fade>
+
+      {/* ATTENDANCE DETAILS DIALOG */}
+      <Dialog
+        open={detailsOpen}
+        onClose={() => setDetailsOpen(false)}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 4,
+            backdropFilter: "blur(20px)",
+            background: `linear-gradient(135deg, ${alpha(theme.palette.background.paper, 0.95)}, ${alpha(theme.palette.background.default, 0.95)})`,
+          }
+        }}
+        TransitionComponent={Fade}
+        transitionDuration={400}
+      >
+        {selectedRecord && (
+          <>
+            <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 3 }}>
+              <Box>
+                <Typography variant="h5" fontWeight={800}>
+                  {new Date(selectedRecord.date).toLocaleDateString(undefined, { weekday: 'long' })}
+                </Typography>
+                <Typography variant="subtitle1" color="text.secondary">
+                  {new Date(selectedRecord.date).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' })}
+                </Typography>
+              </Box>
+              <Chip
+                label={getStatusConfig(selectedRecord.status).label}
+                color={getStatusConfig(selectedRecord.status).color as any}
+                variant="filled"
+                sx={{ fontWeight: 700, borderRadius: 2 }}
+              />
+            </DialogTitle>
+            <Divider />
+            <DialogContent sx={{ p: 4 }}>
+              <Grid container spacing={4}>
+                {selectedRecord.status === 'FULL' || selectedRecord.status === 'HALF' ? (
+                  <>
+                    <Grid item xs={6}>
+                      <Paper elevation={0} sx={{ p: 2, textAlign: 'center', height: '100%', borderRadius: 3, bgcolor: alpha(theme.palette.success.main, 0.08), border: `1px solid ${alpha(theme.palette.success.main, 0.1)}` }}>
+                        <Box sx={{ color: 'success.main', mb: 1 }}>
+                          <AccessTime fontSize="large" color="inherit" />
+                        </Box>
+                        <Typography variant="body2" color="text.secondary">Check In</Typography>
+                        <Typography variant="h6" fontWeight={700}>{selectedRecord.entryTime || '--:--'}</Typography>
+                      </Paper>
+                    </Grid>
+                    <Grid item xs={6}>
+                      <Paper elevation={0} sx={{ p: 2, textAlign: 'center', height: '100%', borderRadius: 3, bgcolor: alpha(theme.palette.error.main, 0.08), border: `1px solid ${alpha(theme.palette.error.main, 0.1)}` }}>
+                        <Box sx={{ color: 'error.main', mb: 1 }}>
+                          <AccessTime fontSize="large" color="inherit" sx={{ transform: 'scaleX(-1)' }} />
+                        </Box>
+                        <Typography variant="body2" color="text.secondary">Check Out</Typography>
+                        <Typography variant="h6" fontWeight={700}>{selectedRecord.exitTime || '--:--'}</Typography>
+                      </Paper>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Paper elevation={0} sx={{ p: 3, borderRadius: 3, bgcolor: alpha(theme.palette.primary.main, 0.04), border: `1px dashed ${alpha(theme.palette.primary.main, 0.2)}` }}>
+                        <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                          WORK LOG
+                        </Typography>
+                        <Typography variant="body1" fontWeight={500} color="text.primary">
+                          {selectedRecord.workDescription || "No specific work log recorded for this day."}
+                        </Typography>
+                      </Paper>
+                    </Grid>
+                    {selectedRecord.totalHours && (
+                      <Grid item xs={12}>
+                        <Box display="flex" justifyContent="space-between" alignItems="center" bgcolor={alpha(theme.palette.primary.main, 0.05)} p={2} borderRadius={2}>
+                          <Typography variant="subtitle2" fontWeight={600}>Total Hours</Typography>
+                          <Typography variant="h6" fontWeight={800} color="primary.main">{selectedRecord.totalHours.toFixed(1)} Hrs</Typography>
+                        </Box>
+                      </Grid>
+                    )}
+                  </>
+                ) : (
+                  <Grid item xs={12}>
+                    <Box sx={{ textAlign: 'center', py: 4, opacity: 0.7 }}>
+                      <EventIcon sx={{ fontSize: 48, color: 'text.disabled', mb: 2 }} />
+                      <Typography variant="h6" color="text.secondary">
+                        {selectedRecord.status === 'WEEKEND' ? 'It\'s the Weekend!' : selectedRecord.status === 'HOLIDAY' ? 'Public Holiday' : 'No records found for this day.'}
                       </Typography>
                     </Box>
-                  ))}
-                </Box>
-              </Box>
-            )}
-          </CardContent>
-        </Card>
-      )}
-
-      {/* List View */}
-      {viewMode === 'list' && (
-        <Card>
-          <CardHeader
-            title={
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <ListIcon color="primary" />
-                <Typography variant="h6">Attendance Records</Typography>
-              </Box>
-            }
-          />
-          <TableContainer>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Date</TableCell>
-                  <TableCell>Day</TableCell>
-                  <TableCell>Status</TableCell>
-                  <TableCell>Remarks</TableCell>
-                  <TableCell>Marked By</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {isLoading ? (
-                  Array.from({ length: 10 }).map((_, index) => (
-                    <TableRow key={index}>
-                      <TableCell><Skeleton /></TableCell>
-                      <TableCell><Skeleton /></TableCell>
-                      <TableCell><Skeleton /></TableCell>
-                      <TableCell><Skeleton /></TableCell>
-                      <TableCell><Skeleton /></TableCell>
-                    </TableRow>
-                  ))
-                ) : attendance?.records.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={5} align="center" sx={{ py: 8 }}>
-                      <Typography variant="body2" color="text.secondary">
-                        No attendance records for this month
-                      </Typography>
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  attendance?.records
-                    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-                    .map((record) => (
-                      <TableRow key={record.id} hover>
-                        <TableCell>
-                          <Typography variant="body2" fontWeight={500}>
-                            {new Date(record.date).toLocaleDateString('default', {
-                              year: 'numeric',
-                              month: 'short',
-                              day: 'numeric',
-                            })}
-                          </Typography>
-                        </TableCell>
-                        <TableCell>
-                          <Typography variant="body2" color="text.secondary">
-                            {new Date(record.date).toLocaleDateString('default', { weekday: 'long' })}
-                          </Typography>
-                        </TableCell>
-                        <TableCell>
-                          <Chip
-                            icon={getStatusIcon(record.status)}
-                            label={getStatusLabel(record.status)}
-                            size="small"
-                            color={getStatusColor(record.status)}
-                            variant="filled"
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <Typography variant="body2" color="text.secondary">
-                            {record.remarks || '—'}
-                          </Typography>
-                        </TableCell>
-                        <TableCell>
-                          <Typography variant="body2" color="text.secondary">
-                            {record.markedByName || 'System'}
-                          </Typography>
-                        </TableCell>
-                      </TableRow>
-                    ))
+                  </Grid>
                 )}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Card>
-      )}
+              </Grid>
+            </DialogContent>
+            <DialogActions sx={{ p: 3 }}>
+              <Button onClick={() => setDetailsOpen(false)} fullWidth variant="contained" size="large" sx={{ borderRadius: 3 }}>
+                Close Details
+              </Button>
+            </DialogActions>
+          </>
+        )}
+      </Dialog>
     </Box>
   );
 };

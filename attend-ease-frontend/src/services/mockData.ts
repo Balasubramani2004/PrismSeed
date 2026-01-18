@@ -1,12 +1,12 @@
 // Mock Data for Frontend Demo (No Backend Required)
 
-import { 
-  AttendanceSummary, 
+import {
+  AttendanceSummary,
   AttendanceRecord,
-  MonthlyAttendance, 
-  SalarySlip, 
-  Lab, 
-  LabMember, 
+  MonthlyAttendance,
+  SalarySlip,
+  Lab,
+  LabMember,
   User,
   DashboardStats,
   AttendanceStatus,
@@ -25,17 +25,17 @@ const getDateString = (daysAgo: number): string => {
 export const generateMockAttendanceRecords = (year: number, month: number): MonthlyAttendance => {
   const daysInMonth = new Date(year, month, 0).getDate();
   const records: AttendanceRecord[] = [];
-  
+
   let fullDays = 0;
   let halfDays = 0;
   let lopDays = 0;
   let holidays = 0;
   let weekends = 0;
-  
+
   for (let day = 1; day <= daysInMonth; day++) {
     const date = new Date(year, month - 1, day);
     const dayOfWeek = date.getDay();
-    
+
     let status: AttendanceStatus;
     if (dayOfWeek === 0 || dayOfWeek === 6) {
       status = 'WEEKEND';
@@ -53,21 +53,66 @@ export const generateMockAttendanceRecords = (year: number, month: number): Mont
       status = 'FULL';
       fullDays++;
     }
-    
+
+    let entryTime: string | undefined;
+    let exitTime: string | undefined;
+    let totalHours: number | undefined;
+    let workDescription: string | undefined;
+
+    const workLogs = [
+      "Worked on login authentication module",
+      "Resolved UI bugs in dashboard",
+      "Team meeting and sprint planning",
+      "Database schema design for user profile",
+      "Implemented API integration for payments",
+      "Code review and refactoring",
+      "Documentation updates",
+      "Client call and requirement gathering",
+      "Integrated new chart library",
+      "Fixed responsive layout issues"
+    ];
+
+    if (status === 'FULL') {
+      const entryHour = 9 + Math.floor(Math.random() * 2); // 9 or 10
+      const entryMin = Math.floor(Math.random() * 60).toString().padStart(2, '0');
+      entryTime = `${entryHour.toString().padStart(2, '0')}:${entryMin}`;
+
+      const exitHour = 17 + Math.floor(Math.random() * 3); // 17, 18, 19
+      const exitMin = Math.floor(Math.random() * 60).toString().padStart(2, '0');
+      exitTime = `${exitHour.toString().padStart(2, '0')}:${exitMin}`;
+
+      totalHours = (exitHour - entryHour) + (parseInt(exitMin) - parseInt(entryMin)) / 60;
+      workDescription = workLogs[Math.floor(Math.random() * workLogs.length)];
+    } else if (status === 'HALF') {
+      const entryHour = 9 + Math.floor(Math.random() * 2);
+      const entryMin = Math.floor(Math.random() * 60).toString().padStart(2, '0');
+      entryTime = `${entryHour.toString().padStart(2, '0')}:${entryMin}`;
+
+      const exitHour = 13 + Math.floor(Math.random() * 2); // 13 or 14
+      exitTime = `${exitHour}:00`;
+
+      totalHours = 4 + Math.random();
+      workDescription = "Half day leave - Personal appointments";
+    }
+
     records.push({
       id: day,
       labMemberId: 1,
       date: date.toISOString().split('T')[0],
       status,
       remarks: status === 'HOLIDAY' ? 'Public Holiday' : undefined,
+      entryTime,
+      exitTime,
+      totalHours,
+      workDescription,
       createdAt: getDateString(0),
       updatedAt: getDateString(0),
     });
   }
-  
+
   const workingDays = daysInMonth - weekends - holidays;
   const effectiveWorkingDays = fullDays + (halfDays * 0.5);
-  
+
   return {
     summary: {
       year,
