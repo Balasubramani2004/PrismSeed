@@ -205,10 +205,10 @@ const Layout: React.FC = () => {
       flexDirection: 'column',
       height: '100%',
       background: `linear-gradient(180deg, 
-        ${alpha(theme.palette.primary.main, 0.05)} 0%, 
-        ${alpha(theme.palette.background.paper, 1)} 20%,
-        ${alpha(theme.palette.background.paper, 1)} 80%,
-        ${alpha(theme.palette.secondary.main, 0.05)} 100%)`,
+        ${alpha(theme.palette.primary.main, 0.12)} 0%, 
+        ${alpha('#ffffff', 0.95)} 25%,
+        ${alpha('#ffffff', 0.95)} 85%,
+        ${alpha(theme.palette.secondary.main, 0.12)} 100%)`,
       position: 'relative',
       '&::before': {
         content: '""',
@@ -413,13 +413,17 @@ const Layout: React.FC = () => {
   );
 
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'background.default' }}>
+    <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'transparent' }}>
       {/* App Bar */}
       <AppBar
         position="fixed"
         sx={{
           width: { md: `calc(100% - ${drawerWidth}px)` },
           ml: { md: `${drawerWidth}px` },
+          bgcolor: alpha('#ffffff', 0.8),
+          backdropFilter: 'blur(12px)',
+          borderBottom: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+          boxShadow: '0 4px 20px rgba(0,0,0,0.02)',
           transition: theme.transitions.create(['width', 'margin'], {
             easing: theme.transitions.easing.sharp,
             duration: theme.transitions.duration.leavingScreen,

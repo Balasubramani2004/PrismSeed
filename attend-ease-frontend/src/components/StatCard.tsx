@@ -19,12 +19,42 @@ interface StatCardProps {
 }
 
 const colorMap = {
-  primary: { bg: 'rgba(0, 102, 204, 0.08)', color: '#0066CC' },
-  secondary: { bg: 'rgba(0, 173, 239, 0.08)', color: '#00ADEF' },
-  success: { bg: 'rgba(40, 167, 69, 0.08)', color: '#28A745' },
-  warning: { bg: 'rgba(255, 193, 7, 0.08)', color: '#D49A00' },
-  error: { bg: 'rgba(220, 53, 69, 0.08)', color: '#DC3545' },
-  info: { bg: 'rgba(23, 162, 184, 0.08)', color: '#17A2B8' },
+  primary: {
+    bg: 'rgba(0, 102, 204, 0.15)',
+    color: '#0066CC',
+    cardBg: 'linear-gradient(135deg, #ffffff 0%, #f0f7ff 100%)',
+    border: '1px solid rgba(0, 102, 204, 0.2)'
+  },
+  secondary: {
+    bg: 'rgba(0, 173, 239, 0.15)',
+    color: '#00ADEF',
+    cardBg: 'linear-gradient(135deg, #ffffff 0%, #f0fcff 100%)',
+    border: '1px solid rgba(0, 173, 239, 0.2)'
+  },
+  success: {
+    bg: 'rgba(40, 167, 69, 0.15)',
+    color: '#28A745',
+    cardBg: 'linear-gradient(135deg, #ffffff 0%, #f0fff4 100%)',
+    border: '1px solid rgba(40, 167, 69, 0.2)'
+  },
+  warning: {
+    bg: 'rgba(255, 193, 7, 0.15)',
+    color: '#D49A00',
+    cardBg: 'linear-gradient(135deg, #ffffff 0%, #fffdf0 100%)',
+    border: '1px solid rgba(255, 193, 7, 0.2)'
+  },
+  error: {
+    bg: 'rgba(220, 53, 69, 0.15)',
+    color: '#DC3545',
+    cardBg: 'linear-gradient(135deg, #ffffff 0%, #fff0f1 100%)',
+    border: '1px solid rgba(220, 53, 69, 0.2)'
+  },
+  info: {
+    bg: 'rgba(23, 162, 184, 0.15)',
+    color: '#17A2B8',
+    cardBg: 'linear-gradient(135deg, #ffffff 0%, #f0faff 100%)',
+    border: '1px solid rgba(23, 162, 184, 0.2)'
+  },
 };
 
 const StatCard: React.FC<StatCardProps> = ({
@@ -83,12 +113,18 @@ const StatCard: React.FC<StatCardProps> = ({
     <Card
       sx={{
         height: '100%',
+        background: colors.cardBg,
+        border: colors.border,
+        boxShadow: '0 4px 20px rgba(0,0,0,0.03)',
         cursor: onClick ? 'pointer' : 'default',
-        transition: 'all 0.2s ease-in-out',
+        transition: 'all 0.3s ease-in-out',
         '&:hover': onClick ? {
+          transform: 'translateY(-4px)',
+          boxShadow: '0px 12px 30px rgba(0, 0, 0, 0.08)',
+        } : {
           transform: 'translateY(-2px)',
-          boxShadow: '0px 8px 24px rgba(0, 0, 0, 0.12)',
-        } : {},
+          boxShadow: '0 8px 25px rgba(0,0,0,0.05)',
+        },
         ...sx,
       }}
       onClick={onClick}
@@ -99,14 +135,14 @@ const StatCard: React.FC<StatCardProps> = ({
             <Typography
               variant="body2"
               color="text.secondary"
-              sx={{ fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em', fontSize: '0.75rem' }}
+              sx={{ fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', fontSize: '0.7rem', opacity: 0.8 }}
             >
               {title}
             </Typography>
-            
+
             <Typography
               variant="h4"
-              sx={{ mt: 1, fontWeight: 700, color: colors.color, lineHeight: 1.2 }}
+              sx={{ mt: 1, fontWeight: 700, color: '#1a1a1a', lineHeight: 1.2 }}
             >
               {value}
             </Typography>
@@ -125,7 +161,7 @@ const StatCard: React.FC<StatCardProps> = ({
                   </Box>
                 )}
                 {subtitle && (
-                  <Typography variant="caption" color="text.secondary">
+                  <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 500 }}>
                     {trend?.label || subtitle}
                   </Typography>
                 )}
@@ -138,12 +174,13 @@ const StatCard: React.FC<StatCardProps> = ({
               sx={{
                 width: 48,
                 height: 48,
-                borderRadius: 2,
+                borderRadius: 3,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 backgroundColor: colors.bg,
                 color: colors.color,
+                boxShadow: '0 4px 10px rgba(0,0,0,0.05)'
               }}
             >
               {icon}

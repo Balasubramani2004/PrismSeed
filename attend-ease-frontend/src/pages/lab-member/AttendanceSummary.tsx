@@ -66,39 +66,14 @@ const GlassCard = ({ children, sx, ...props }: any) => {
     <Card
       elevation={0}
       sx={{
-        background: `linear-gradient(135deg, 
-          ${alpha(theme.palette.primary.light, 0.08)} 0%, 
-          ${alpha(theme.palette.background.paper, 0.95)} 30%,
-          ${alpha(theme.palette.background.paper, 0.95)} 70%,
-          ${alpha(theme.palette.secondary.light, 0.08)} 100%)`,
-        backdropFilter: "blur(20px) saturate(180%)",
-        WebkitBackdropFilter: "blur(20px) saturate(180%)",
-        border: `1px solid ${alpha(theme.palette.primary.main, 0.15)}`,
-        boxShadow: `
-          0 8px 32px ${alpha(theme.palette.primary.main, 0.1)}, 
-          inset 0 1px 0 ${alpha(theme.palette.common.white, 0.6)}
-        `,
+        background: "rgba(224, 242, 254, 0.5)",
+        backdropFilter: "blur(10px)",
+        WebkitBackdropFilter: "blur(10px)",
+        border: `1px solid ${alpha('#0284c7', 0.2)}`, // Using bright blue for border
+        boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
         borderRadius: 3,
         position: "relative",
         overflow: "hidden",
-        "&::before": {
-          content: '""',
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          height: "2px",
-          background: `linear-gradient(90deg, 
-            ${alpha(theme.palette.primary.main, 0.3)}, 
-            ${alpha(theme.palette.secondary.main, 0.3)}, 
-            ${alpha(theme.palette.primary.main, 0.3)})`,
-          backgroundSize: "200% 100%",
-          animation: "gradientShift 3s ease infinite",
-        },
-        "@keyframes gradientShift": {
-          "0%, 100%": { backgroundPosition: "0% 0%" },
-          "50%": { backgroundPosition: "100% 0%" },
-        },
         ...sx,
       }}
       {...props}
@@ -148,8 +123,8 @@ const ModernStatCard = ({ title, value, icon, color }: any) => {
             p: 1.5,
             width: 48,
             borderRadius: 2.5,
-            bgcolor: alpha(main, 0.12),
-            color: main,
+            bgcolor: alpha('#0284c7', 0.1), // Bright blue bg
+            color: '#0284c7', // Bright blue icon
             mb: 2,
             display: "flex",
             alignItems: "center",
@@ -159,10 +134,10 @@ const ModernStatCard = ({ title, value, icon, color }: any) => {
           {icon}
         </Box>
 
-        <Typography variant="h4" fontWeight={800} sx={{ mb: 0.5 }}>
+        <Typography variant="h4" fontWeight={800} sx={{ mb: 0.5, color: '#075985' }}>
           {value}
         </Typography>
-        <Typography variant="body2" color="text.secondary" fontWeight={600}>
+        <Typography variant="body2" fontWeight={600} sx={{ color: '#334155' }}>
           {title}
         </Typography>
       </CardContent>
@@ -217,8 +192,8 @@ const ProgressStatCard = ({ title, value, icon, color, percentage }: any) => {
                 p: 1.5,
                 width: 48,
                 borderRadius: 2.5,
-                bgcolor: alpha(main, 0.12),
-                color: main,
+                bgcolor: alpha('#0284c7', 0.1),
+                color: '#0284c7',
                 mb: 2,
                 display: "flex",
                 alignItems: "center",
@@ -228,10 +203,10 @@ const ProgressStatCard = ({ title, value, icon, color, percentage }: any) => {
               {icon}
             </Box>
 
-            <Typography variant="h4" fontWeight={800} sx={{ mb: 0.5 }}>
+            <Typography variant="h4" fontWeight={800} sx={{ mb: 0.5, color: '#075985' }}>
               {value}
             </Typography>
-            <Typography variant="body2" color="text.secondary" fontWeight={600}>
+            <Typography variant="body2" fontWeight={600} sx={{ color: '#334155' }}>
               {title}
             </Typography>
           </Box>
@@ -410,146 +385,7 @@ const AttendanceSummary: React.FC = () => {
   return (
     <Box sx={{ position: "relative", maxWidth: 1600, mx: "auto", p: { xs: 2, md: 4 } }}>
       {/* ADVANCED ANIMATED BACKGROUND */}
-      <Box
-        sx={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          zIndex: -1,
-          overflow: "hidden",
-          background: `linear-gradient(135deg, 
-            ${alpha(theme.palette.primary.light, 0.03)} 0%, 
-            ${alpha(theme.palette.background.default, 1)} 50%,
-            ${alpha(theme.palette.secondary.light, 0.03)} 100%)`,
-        }}
-      >
-        {/* Animated Mesh Gradient Blobs */}
-        <Box
-          sx={{
-            position: "absolute",
-            top: "-10%",
-            left: "-10%",
-            width: "500px",
-            height: "500px",
-            borderRadius: "50%",
-            background: `radial-gradient(circle, ${alpha(theme.palette.primary.main, 0.15)} 0%, transparent 70%)`,
-            filter: "blur(60px)",
-            animation: "float1 20s ease-in-out infinite",
-            "@keyframes float1": {
-              "0%, 100%": { transform: "translate(0, 0) scale(1)" },
-              "33%": { transform: "translate(100px, -50px) scale(1.1)" },
-              "66%": { transform: "translate(-50px, 100px) scale(0.9)" },
-            },
-          }}
-        />
 
-        <Box
-          sx={{
-            position: "absolute",
-            top: "20%",
-            right: "-5%",
-            width: "400px",
-            height: "400px",
-            borderRadius: "50%",
-            background: `radial-gradient(circle, ${alpha(theme.palette.secondary.main, 0.12)} 0%, transparent 70%)`,
-            filter: "blur(50px)",
-            animation: "float2 25s ease-in-out infinite",
-            "@keyframes float2": {
-              "0%, 100%": { transform: "translate(0, 0) rotate(0deg)" },
-              "50%": { transform: "translate(-100px, 100px) rotate(180deg)" },
-            },
-          }}
-        />
-
-        <Box
-          sx={{
-            position: "absolute",
-            bottom: "10%",
-            left: "30%",
-            width: "350px",
-            height: "350px",
-            borderRadius: "50%",
-            background: `radial-gradient(circle, ${alpha(theme.palette.info.main, 0.1)} 0%, transparent 70%)`,
-            filter: "blur(45px)",
-            animation: "float3 18s ease-in-out infinite",
-            "@keyframes float3": {
-              "0%, 100%": { transform: "translate(0, 0) scale(1)" },
-              "50%": { transform: "translate(150px, -80px) scale(1.15)" },
-            },
-          }}
-        />
-
-        <Box
-          sx={{
-            position: "absolute",
-            bottom: "-10%",
-            right: "20%",
-            width: "450px",
-            height: "450px",
-            borderRadius: "50%",
-            background: `radial-gradient(circle, ${alpha(theme.palette.success.main, 0.08)} 0%, transparent 70%)`,
-            filter: "blur(55px)",
-            animation: "float4 22s ease-in-out infinite",
-            "@keyframes float4": {
-              "0%, 100%": { transform: "translate(0, 0)" },
-              "33%": { transform: "translate(-80px, -120px)" },
-              "66%": { transform: "translate(80px, 60px)" },
-            },
-          }}
-        />
-
-        {/* Floating Particles */}
-        {[...Array(12)].map((_, i) => (
-          <Box
-            key={i}
-            sx={{
-              position: "absolute",
-              width: `${Math.random() * 6 + 2}px`,
-              height: `${Math.random() * 6 + 2}px`,
-              borderRadius: "50%",
-              bgcolor: alpha(theme.palette.primary.main, Math.random() * 0.3 + 0.1),
-              top: `${Math.random() * 100}%`,
-              left: `${Math.random() * 100}%`,
-              animation: `particle${i} ${Math.random() * 10 + 15}s linear infinite`,
-              [`@keyframes particle${i}`]: {
-                "0%": {
-                  transform: `translate(0, 0) scale(1)`,
-                  opacity: 0,
-                },
-                "10%": {
-                  opacity: 1,
-                },
-                "90%": {
-                  opacity: 1,
-                },
-                "100%": {
-                  transform: `translate(${Math.random() * 200 - 100}px, ${Math.random() * 200 - 100}px) scale(${Math.random() + 0.5})`,
-                  opacity: 0,
-                },
-              },
-            }}
-          />
-        ))}
-
-        {/* Subtle Grid Pattern */}
-        <Box
-          sx={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundImage: `
-              linear-gradient(${alpha(theme.palette.primary.main, 0.02)} 1px, transparent 1px),
-              linear-gradient(90deg, ${alpha(theme.palette.primary.main, 0.02)} 1px, transparent 1px)
-            `,
-            backgroundSize: "50px 50px",
-            opacity: 0.5,
-          }}
-        />
-      </Box>
       {/* HEADER TOOLBAR */}
       <GlassCard sx={{ mb: 4, p: 2 }}>
         <Box
@@ -565,7 +401,7 @@ const AttendanceSummary: React.FC = () => {
                 width: 48,
                 height: 48,
                 borderRadius: "50%",
-                bgcolor: "primary.main",
+                bgcolor: "#0284c7",
                 color: "white",
                 display: "flex",
                 alignItems: "center",
@@ -575,10 +411,10 @@ const AttendanceSummary: React.FC = () => {
               <DateRange />
             </Box>
             <Box>
-              <Typography variant="h5" fontWeight={800}>
+              <Typography variant="h5" fontWeight={800} sx={{ color: '#075985' }}>
                 My Attendance
               </Typography>
-              <Typography variant="body2" color="text.secondary">
+              <Typography variant="body2" sx={{ color: '#334155' }}>
                 Monthly performance & availability
               </Typography>
             </Box>

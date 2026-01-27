@@ -7,9 +7,9 @@ import { createTheme, responsiveFontSizes } from '@mui/material/styles';
 let theme = createTheme({
   palette: {
     primary: {
-      main: "#6366F1",   // Indigo
-      light: "#818CF8",
-      dark: "#4F46E5",
+      main: "#0284c7",   // Bright Blue (Icons)
+      light: "#38bdf8",
+      dark: "#0369a1",
     },
     secondary: {
       main: "#06B6D4",   // Cyan/Teal
@@ -37,10 +37,14 @@ let theme = createTheme({
       dark: "#0284C7",
     },
     background: {
-      default: "#F3F4F6",
-      paper: "#FFFFFF",
+      default: "#F3F4F6", // Will be overridden by CSS baseline for body
+      paper: "rgba(255, 255, 255, 0.5)", // Semi-transparent by default
     },
-    divider: '#E5E7EB',
+    text: {
+      primary: "#334155", // Body Text (Dark Gray)
+      secondary: "#64748b", // Muted text
+    },
+    divider: 'rgba(2, 132, 199, 0.1)',
   },
   typography: {
     fontFamily: "'Roboto', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif",
@@ -49,40 +53,48 @@ let theme = createTheme({
       fontWeight: 700,
       lineHeight: 1.2,
       letterSpacing: '-0.01562em',
+      color: '#075985', // Heading color
     },
     h2: {
       fontSize: '1.5rem',
       fontWeight: 700,
       lineHeight: 1.3,
       letterSpacing: '-0.00833em',
+      color: '#075985',
     },
     h3: {
       fontSize: '1.25rem',
       fontWeight: 600,
       lineHeight: 1.4,
+      color: '#075985',
     },
     h4: {
       fontSize: '1.125rem',
       fontWeight: 600,
       lineHeight: 1.4,
+      color: '#075985',
     },
     h5: {
       fontSize: '1rem',
       fontWeight: 600,
       lineHeight: 1.5,
+      color: '#075985',
     },
     h6: {
       fontSize: '0.875rem',
       fontWeight: 600,
       lineHeight: 1.5,
+      color: '#075985',
     },
     body1: {
       fontSize: '0.875rem',
       lineHeight: 1.6,
+      color: '#334155', // Body text
     },
     body2: {
       fontSize: '0.8125rem',
       lineHeight: 1.5,
+      color: '#334155',
     },
     button: {
       textTransform: 'none',
@@ -91,12 +103,14 @@ let theme = createTheme({
     caption: {
       fontSize: '0.75rem',
       lineHeight: 1.5,
+      color: '#64748b',
     },
     overline: {
       fontSize: '0.625rem',
       fontWeight: 600,
       letterSpacing: '0.08333em',
       textTransform: 'uppercase',
+      color: '#64748b',
     },
   },
   spacing: 8, // 8px grid system
@@ -134,6 +148,8 @@ let theme = createTheme({
     MuiCssBaseline: {
       styleOverrides: {
         body: {
+          background: 'linear-gradient(135deg, #67e8f9 0%, #ddd6fe 50%, #c4b5fd 100%)',
+          minHeight: '100vh',
           scrollbarWidth: 'thin',
           '&::-webkit-scrollbar': {
             width: '8px',
@@ -189,11 +205,11 @@ let theme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: 12,
-          boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.08)',
-          border: '1px solid #E9ECEF',
-          '&:hover': {
-            boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.12)',
-          },
+          border: '1px solid rgba(2, 132, 199, 0.2)', // Ice blue border
+          background: 'rgba(224, 242, 254, 0.5)', // Ice blue glass effect
+          backdropFilter: 'blur(10px)',
+          WebkitBackdropFilter: 'blur(10px)',
+          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
         },
       },
     },
@@ -445,6 +461,11 @@ let theme = createTheme({
         elevation1: {
           boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.08)',
         },
+        // Apply glass effect to all default papers if not overridden
+        root: {
+          background: 'rgba(255, 255, 255, 0.8)',
+          backdropFilter: 'blur(8px)',
+        }
       },
     },
     MuiBreadcrumbs: {

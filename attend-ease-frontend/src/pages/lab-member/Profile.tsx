@@ -44,7 +44,7 @@ const Profile: React.FC = () => {
     createdAt: mockProfile.joinDate,
     updatedAt: mockProfile.joinDate,
   };
-  
+
   // Extra profile data from mock
   const profileData = {
     phone: mockProfile.phone || 'Not provided',
@@ -79,10 +79,10 @@ const Profile: React.FC = () => {
     <Box>
       {/* Header */}
       <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" sx={{ fontWeight: 700 }}>
+        <Typography variant="h4" sx={{ fontWeight: 700, color: '#075985' }}>
           My Profile
         </Typography>
-        <Typography variant="body2" color="text.secondary">
+        <Typography variant="body2" sx={{ color: '#334155' }}>
           View and manage your account information
         </Typography>
       </Box>
@@ -90,7 +90,17 @@ const Profile: React.FC = () => {
       <Grid container spacing={3}>
         {/* Profile Card */}
         <Grid item xs={12} md={4}>
-          <Card sx={{ textAlign: 'center' }}>
+          <Card
+            sx={{
+              textAlign: 'center',
+              background: "rgba(224, 242, 254, 0.5)",
+              backdropFilter: "blur(10px)",
+              WebkitBackdropFilter: "blur(10px)",
+              border: "1px solid rgba(2, 132, 199, 0.2)",
+              boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+              borderRadius: 3,
+            }}
+          >
             <CardContent sx={{ pt: 4 }}>
               <Avatar
                 sx={{
@@ -98,7 +108,7 @@ const Profile: React.FC = () => {
                   height: 120,
                   mx: 'auto',
                   mb: 2,
-                  bgcolor: 'primary.main',
+                  bgcolor: '#0284c7', // Bright blue
                   fontSize: '2.5rem',
                   fontWeight: 700,
                 }}
@@ -106,137 +116,152 @@ const Profile: React.FC = () => {
                 {user?.name?.charAt(0).toUpperCase()}
               </Avatar>
 
-              <Typography variant="h5" sx={{ fontWeight: 700 }}>
+              <Typography variant="h5" sx={{ fontWeight: 700, color: '#075985' }}>
                 {user?.name}
               </Typography>
 
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                    {user?.email}
-                  </Typography>
+              <Typography variant="body2" sx={{ mb: 2, color: '#334155' }}>
+                {user?.email}
+              </Typography>
 
-                  <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1, mb: 3 }}>
-                    {user?.role && (
-                      <Chip
-                        label={getRoleBadge(user.role).label}
-                        color={getRoleBadge(user.role).color}
-                        size="small"
-                      />
-                    )}
-                    {user?.status && (
-                      <Chip
-                        label={getStatusBadge(user.status).label}
-                        color={getStatusBadge(user.status).color}
-                        size="small"
-                        variant="outlined"
-                      />
-                    )}
-                  </Box>
-
-                  <Button
+              <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1, mb: 3 }}>
+                {user?.role && (
+                  <Chip
+                    label={getRoleBadge(user.role).label}
+                    color={getRoleBadge(user.role).color}
+                    size="small"
+                  />
+                )}
+                {user?.status && (
+                  <Chip
+                    label={getStatusBadge(user.status).label}
+                    color={getStatusBadge(user.status).color}
+                    size="small"
                     variant="outlined"
-                    startIcon={<EditIcon />}
-                    fullWidth
-                  >
-                    Edit Profile
-                  </Button>
+                  />
+                )}
+              </Box>
+
+              <Button
+                variant="outlined"
+                startIcon={<EditIcon />}
+                fullWidth
+                sx={{
+                  color: '#0284c7',
+                  borderColor: '#0284c7',
+                  '&:hover': {
+                    borderColor: '#075985',
+                    bgcolor: 'rgba(2, 132, 199, 0.04)',
+                  }
+                }}
+              >
+                Edit Profile
+              </Button>
             </CardContent>
           </Card>
         </Grid>
 
         {/* Details Card */}
         <Grid item xs={12} md={8}>
-          <Card>
+          <Card sx={{
+            background: "rgba(224, 242, 254, 0.5)",
+            backdropFilter: "blur(10px)",
+            WebkitBackdropFilter: "blur(10px)",
+            border: "1px solid rgba(2, 132, 199, 0.2)",
+            boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+            borderRadius: 3,
+          }}>
             <CardHeader
-              title="Account Information"
-              subheader="Your personal and work details"
+              title={<Typography variant="h6" sx={{ color: '#075985', fontWeight: 700 }}>Account Information</Typography>}
+              subheader={<Typography variant="body2" sx={{ color: '#334155' }}>Your personal and work details</Typography>}
             />
             <CardContent>
               <List disablePadding>
                 <ListItem sx={{ py: 2 }}>
                   <ListItemIcon>
-                    <PersonIcon color="primary" />
+                    <PersonIcon sx={{ color: '#0284c7' }} />
                   </ListItemIcon>
                   <ListItemText
                     primary="Full Name"
                     secondary={user?.name || '—'}
-                    primaryTypographyProps={{ variant: 'caption', color: 'text.secondary' }}
-                    secondaryTypographyProps={{ variant: 'body1', color: 'text.primary', fontWeight: 500 }}
+                    primaryTypographyProps={{ variant: 'caption', color: '#64748b' }}
+                    secondaryTypographyProps={{ variant: 'body1', color: '#334155', fontWeight: 500 }}
                   />
                 </ListItem>
 
                 <Divider component="li" />
 
                 <ListItem sx={{ py: 2 }}>
-                    <ListItemIcon>
-                      <EmailIcon color="primary" />
-                    </ListItemIcon>
-                    <ListItemText
-                      primary="Email Address"
-                      secondary={user?.email || '—'}
-                      primaryTypographyProps={{ variant: 'caption', color: 'text.secondary' }}
-                      secondaryTypographyProps={{ variant: 'body1', color: 'text.primary', fontWeight: 500 }}
-                    />
-                  </ListItem>
+                  <ListItemIcon>
+                    <EmailIcon sx={{ color: '#0284c7' }} />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary="Email Address"
+                    secondary={user?.email || '—'}
+                    primaryTypographyProps={{ variant: 'caption', color: '#64748b' }}
+                    secondaryTypographyProps={{ variant: 'body1', color: '#334155', fontWeight: 500 }}
+                  />
+                </ListItem>
 
-                  <Divider component="li" />
+                <Divider component="li" />
 
-                  <ListItem sx={{ py: 2 }}>
-                    <ListItemIcon>
-                      <PhoneIcon color="primary" />
-                    </ListItemIcon>
-                    <ListItemText
-                      primary="Phone Number"
-                      secondary={profileData.phone}
-                      primaryTypographyProps={{ variant: 'caption', color: 'text.secondary' }}
-                      secondaryTypographyProps={{ variant: 'body1', color: 'text.primary', fontWeight: 500 }}
-                    />
-                  </ListItem>
+                <ListItem sx={{ py: 2 }}>
+                  <ListItemIcon>
+                    <PhoneIcon sx={{ color: '#0284c7' }} />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary="Phone Number"
+                    secondary={profileData.phone}
+                    primaryTypographyProps={{ variant: 'caption', color: '#64748b' }}
+                    secondaryTypographyProps={{ variant: 'body1', color: '#334155', fontWeight: 500 }}
+                  />
+                </ListItem>
 
-                  <Divider component="li" />
+                <Divider component="li" />
 
-                  <ListItem sx={{ py: 2 }}>
-                    <ListItemIcon>
-                      <BusinessIcon color="primary" />
-                    </ListItemIcon>
-                    <ListItemText
-                      primary="Lab"
-                      secondary={user?.labName || 'Not assigned'}
-                      primaryTypographyProps={{ variant: 'caption', color: 'text.secondary' }}
-                      secondaryTypographyProps={{ variant: 'body1', color: 'text.primary', fontWeight: 500 }}
-                    />
-                  </ListItem>
+                <ListItem sx={{ py: 2 }}>
+                  <ListItemIcon>
+                    <BusinessIcon sx={{ color: '#0284c7' }} />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary="Lab"
+                    secondary={user?.labName || 'Not assigned'}
+                    primaryTypographyProps={{ variant: 'caption', color: '#64748b' }}
+                    secondaryTypographyProps={{ variant: 'body1', color: '#334155', fontWeight: 500 }}
+                  />
+                </ListItem>
 
-                  <Divider component="li" />
+                <Divider component="li" />
 
-                  <ListItem sx={{ py: 2 }}>
-                    <ListItemIcon>
-                      <BadgeIcon color="primary" />
-                    </ListItemIcon>
-                    <ListItemText
-                      primary="Role"
-                      secondary={getRoleBadge(user?.role || '').label}
-                      primaryTypographyProps={{ variant: 'caption', color: 'text.secondary' }}
-                      secondaryTypographyProps={{ variant: 'body1', color: 'text.primary', fontWeight: 500 }}
-                    />
-                  </ListItem>
+                <ListItem sx={{ py: 2 }}>
+                  <ListItemIcon>
+                    <BadgeIcon sx={{ color: '#0284c7' }} />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary="Role"
+                    secondary={getRoleBadge(user?.role || '').label}
+                    primaryTypographyProps={{ variant: 'caption', color: '#64748b' }}
+                    secondaryTypographyProps={{ variant: 'body1', color: '#334155', fontWeight: 500 }}
+                  />
+                </ListItem>
 
-                  <Divider component="li" />
+                <Divider component="li" />
 
-                  <ListItem sx={{ py: 2 }}>
-                    <ListItemIcon>
-                      <CalendarIcon color="primary" />
-                    </ListItemIcon>
-                    <ListItemText
-                      primary="Join Date"
-                      secondary={profileData.joinDate ? new Date(profileData.joinDate).toLocaleDateString('default', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                      }) : 'Not available'}
-                      primaryTypographyProps={{ variant: 'caption', color: 'text.secondary' }}
-                      secondaryTypographyProps={{ variant: 'body1', color: 'text.primary', fontWeight: 500 }}
-                    />
-                  </ListItem>
+                <ListItem sx={{ py: 2 }}>
+                  <ListItemIcon>
+                    <CalendarIcon sx={{ color: '#0284c7' }} />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary="Join Date"
+                    secondary={profileData.joinDate ? new Date(profileData.joinDate).toLocaleDateString('default', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                    }) : 'Not available'}
+                    primaryTypographyProps={{ variant: 'caption', color: '#64748b' }}
+                    secondaryTypographyProps={{ variant: 'body1', color: '#334155', fontWeight: 500 }}
+                  />
+                </ListItem>
               </List>
             </CardContent>
           </Card>

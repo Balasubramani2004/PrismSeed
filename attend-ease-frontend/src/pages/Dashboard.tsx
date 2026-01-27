@@ -182,7 +182,17 @@ const LabMemberDashboard: React.FC = () => {
         <Grid container spacing={3}>
           {/* Attendance Progress Card */}
           <Grid item xs={12} md={8}>
-            <Card sx={{ height: '100%' }}>
+            <Card sx={{
+              height: '100%',
+              background: 'linear-gradient(145deg, #ffffff 0%, #f0f9ff 100%)',
+              border: '1px solid rgba(2, 132, 199, 0.2)',
+              boxShadow: '0 4px 20px rgba(0,0,0,0.05)',
+              transition: 'transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out',
+              '&:hover': {
+                transform: 'translateY(-4px)',
+                boxShadow: '0 12px 30px rgba(0, 102, 204, 0.15)'
+              }
+            }}>
               <CardHeader
                 title="Attendance Overview"
                 subheader={currentDate.toLocaleString('default', { month: 'long', year: 'numeric' })}
@@ -291,7 +301,17 @@ const LabMemberDashboard: React.FC = () => {
 
           {/* Latest Salary Card */}
           <Grid item xs={12} md={4}>
-            <Card sx={{ height: '100%' }}>
+            <Card sx={{
+              height: '100%',
+              background: 'linear-gradient(145deg, #ffffff 0%, #f0fff4 100%)',
+              border: '1px solid rgba(40, 167, 69, 0.2)',
+              boxShadow: '0 4px 20px rgba(0,0,0,0.05)',
+              transition: 'transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out',
+              '&:hover': {
+                transform: 'translateY(-4px)',
+                boxShadow: '0 12px 30px rgba(40, 167, 69, 0.15)'
+              }
+            }}>
               <CardHeader
                 title="Latest Salary"
                 subheader={lastSalary ? `${lastSalary.month}/${lastSalary.year}` : 'No salary data'}
@@ -372,7 +392,15 @@ const LabMemberDashboard: React.FC = () => {
 
           {/* Quick Actions */}
           <Grid item xs={12}>
-            <Card>
+            <Card sx={{
+              background: 'linear-gradient(145deg, #ffffff 0%, #fef3c7 100%)', // subtle amber/gold for actions
+              border: '1px solid rgba(245, 158, 11, 0.2)',
+              boxShadow: '0 4px 20px rgba(0,0,0,0.05)',
+              transition: 'all 0.3s ease-in-out',
+              '&:hover': {
+                boxShadow: '0 12px 30px rgba(245, 158, 11, 0.15)'
+              }
+            }}>
               <CardHeader title="Quick Actions" />
               <CardContent>
                 <Grid container spacing={2}>
