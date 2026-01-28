@@ -37,8 +37,11 @@ import {
   Business as BusinessIcon,
   Assessment as AssessmentIcon,
   AdminPanelSettings as AdminIcon,
+  DarkMode as DarkModeIcon,
+  LightMode as LightModeIcon,
 } from '@mui/icons-material';
 import { useAuthStore } from '@/stores/authStore';
+import { useThemeMode } from '@/contexts/ThemeContext';
 import { UserRole } from '@/types';
 
 const DRAWER_WIDTH = 280;
@@ -152,6 +155,7 @@ const Layout: React.FC = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const { user, logout } = useAuthStore();
+  const { isDarkMode, toggleDarkMode } = useThemeMode();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -204,11 +208,17 @@ const Layout: React.FC = () => {
       display: 'flex',
       flexDirection: 'column',
       height: '100%',
-      background: `linear-gradient(180deg, 
-        ${alpha(theme.palette.primary.main, 0.12)} 0%, 
-        ${alpha('#ffffff', 0.95)} 25%,
-        ${alpha('#ffffff', 0.95)} 85%,
-        ${alpha(theme.palette.secondary.main, 0.12)} 100%)`,
+      background: isDarkMode
+        ? `linear-gradient(180deg, 
+          ${alpha(theme.palette.primary.main, 0.15)} 0%, 
+          ${alpha('#1e293b', 0.98)} 25%,
+          ${alpha('#1e293b', 0.98)} 85%,
+          ${alpha(theme.palette.secondary.main, 0.15)} 100%)`
+        : `linear-gradient(180deg, 
+          ${alpha(theme.palette.primary.main, 0.12)} 0%, 
+          ${alpha('#ffffff', 0.95)} 25%,
+          ${alpha('#ffffff', 0.95)} 85%,
+          ${alpha(theme.palette.secondary.main, 0.12)} 100%)`,
       position: 'relative',
       '&::before': {
         content: '""',
@@ -413,17 +423,60 @@ const Layout: React.FC = () => {
   );
 
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'transparent' }}>
+    <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'transparent', position: 'relative', overflow: 'hidden' }}>
+      {/* DECORATIVE BACKGROUND ELEMENTS */}
+      <Box
+        sx={{
+          position: 'fixed',
+          top: '-10%',
+          right: '-5%',
+          width: '40%',
+          height: '40%',
+          borderRadius: '50%',
+          background: isDarkMode
+            ? `radial-gradient(circle, ${alpha('#38bdf8', 0.08)} 0%, transparent 70%)`
+            : `radial-gradient(circle, ${alpha('#a78bfa', 0.25)} 0%, transparent 70%)`,
+          filter: 'blur(60px)',
+          pointerEvents: 'none',
+          zIndex: 0,
+          animation: 'pulse 8s ease-in-out infinite',
+          '@keyframes pulse': {
+            '0%, 100%': { opacity: 0.5, transform: 'scale(1)' },
+            '50%': { opacity: 0.8, transform: 'scale(1.1)' },
+          },
+        }}
+      />
+
+      <Box
+        sx={{
+          position: 'fixed',
+          bottom: '-10%',
+          left: '-5%',
+          width: '35%',
+          height: '35%',
+          borderRadius: '50%',
+          background: isDarkMode
+            ? `radial-gradient(circle, ${alpha('#818cf8', 0.08)} 0%, transparent 70%)`
+            : `radial-gradient(circle, ${alpha('#818cf8', 0.25)} 0%, transparent 70%)`,
+          filter: 'blur(60px)',
+          pointerEvents: 'none',
+          zIndex: 0,
+          animation: 'pulse 10s ease-in-out infinite reverse',
+        }}
+      />
+
       {/* App Bar */}
       <AppBar
         position="fixed"
         sx={{
           width: { md: `calc(100% - ${drawerWidth}px)` },
           ml: { md: `${drawerWidth}px` },
-          bgcolor: alpha('#ffffff', 0.8),
+          bgcolor: isDarkMode ? alpha('#1e293b', 0.8) : alpha('#ffffff', 0.8),
           backdropFilter: 'blur(12px)',
-          borderBottom: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-          boxShadow: '0 4px 20px rgba(0,0,0,0.02)',
+          borderBottom: `1px solid ${alpha(theme.palette.divider, isDarkMode ? 0.2 : 0.1)}`,
+          boxShadow: isDarkMode
+            ? '0 4px 20px rgba(0,0,0,0.3)'
+            : '0 4px 20px rgba(0,0,0,0.02)',
           transition: theme.transitions.create(['width', 'margin'], {
             easing: theme.transitions.easing.sharp,
             duration: theme.transitions.duration.leavingScreen,
@@ -447,6 +500,23 @@ const Layout: React.FC = () => {
 
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             {user && getRoleBadge(user.role)}
+
+            <Tooltip title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}>
+              <IconButton
+                onClick={toggleDarkMode}
+                sx={{
+                  color: 'text.secondary',
+                  bgcolor: isDarkMode ? alpha(theme.palette.primary.main, 0.1) : 'transparent',
+                  '&:hover': {
+                    bgcolor: isDarkMode ? alpha(theme.palette.primary.main, 0.2) : alpha(theme.palette.primary.main, 0.1),
+                    transform: 'rotate(180deg)',
+                  },
+                  transition: 'all 0.3s ease',
+                }}
+              >
+                {isDarkMode ? <LightModeIcon /> : <DarkModeIcon />}
+              </IconButton>
+            </Tooltip>
 
             <Tooltip title="Notifications">
               <IconButton sx={{ color: 'text.secondary' }}>
