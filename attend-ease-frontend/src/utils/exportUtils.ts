@@ -1,4 +1,70 @@
 // Utility functions for exporting data to PDF and Excel/CSV
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
+
+/**
+ * Generate PDF file and download directly (without print dialog)
+ * @param filename - Filename for the downloaded PDF
+ * @param htmlContent - HTML content to convert to PDF
+ */
+const generateAndDownloadPDF = async (
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _title: string,
+    filename: string,
+    htmlContent: string
+): Promise<boolean> => {
+    try {
+        // Create a temporary container
+        const container = document.createElement('div');
+        container.innerHTML = htmlContent;
+        container.style.position = 'absolute';
+        container.style.left = '-9999px';
+        container.style.width = '900px';
+        container.style.backgroundColor = 'white';
+        document.body.appendChild(container);
+
+        // Convert HTML to canvas
+        const canvas = await html2canvas(container, {
+            scale: 2,
+            useCORS: true,
+            allowTaint: true,
+            backgroundColor: '#ffffff',
+        });
+
+        // Create PDF from canvas
+        const imgData = canvas.toDataURL('image/png');
+        const pageWidth = 210; // A4 width in mm
+        const pageHeight = 297; // A4 height in mm
+        const imgWidth = pageWidth - 20; // 10mm margin on each side
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        let yPosition = 10;
+
+        // Add image to PDF with pagination
+        let heightLeft = imgHeight;
+        while (heightLeft > 0) {
+            if (yPosition > 0) {
+                pdf.addPage();
+            }
+
+            pdf.addImage(imgData, 'PNG', 10, yPosition, imgWidth, imgHeight);
+            heightLeft -= pageHeight - 20;
+            yPosition = -imgHeight + (pageHeight - 20);
+        }
+
+        // Download PDF
+        pdf.save(`${filename}.pdf`);
+
+        // Cleanup
+        document.body.removeChild(container);
+        return true;
+    } catch (error) {
+        console.error('Error generating PDF:', error);
+        alert('Failed to generate PDF. Please try again.');
+        return false;
+    }
+};
 
 /**
  * Export data to CSV format (Excel-compatible)
@@ -54,13 +120,13 @@ export const exportToCSV = (data: any[], filename: string, headers?: string[]) =
 };
 
 /**
- * Export data to PDF format using print dialog
+ * Export data to PDF format with direct download (no print dialog)
  * @param title - Title of the document
  * @param data - Array of objects to export
  * @param headers - Optional custom headers
  * @param summary - Optional summary object to display
  */
-export const exportToPDF = (
+export const exportToPDF = async (
     title: string,
     data: any[],
     headers?: string[],
@@ -69,7 +135,7 @@ export const exportToPDF = (
     try {
         if (!data || data.length === 0) {
             alert('No data to export');
-            return;
+            return false;
         }
 
         const tableHeaders = headers || Object.keys(data[0]);
@@ -215,23 +281,10 @@ export const exportToPDF = (
       </html>
     `;
 
-        // Open in new window and trigger print
-        const printWindow = window.open('', '_blank');
-        if (!printWindow) {
-            alert('Please allow popups to download PDF');
-            return false;
-        }
+        const timestamp = new Date().toISOString().split('T')[0];
+        const filename = `${title.replace(/\s+/g, '_')}_${timestamp}`;
 
-        printWindow.document.write(htmlContent);
-        printWindow.document.close();
-        printWindow.focus();
-
-        // Wait for content to load, then print
-        setTimeout(() => {
-            printWindow.print();
-        }, 500);
-
-        return true;
+        return await generateAndDownloadPDF(title, filename, htmlContent);
     } catch (error) {
         console.error('Error exporting to PDF:', error);
         alert('Failed to export to PDF. Please try again.');
@@ -240,10 +293,10 @@ export const exportToPDF = (
 };
 
 /**
- * Export salary slip to PDF
+ * Export salary slip to PDF with direct download
  * @param slip - Salary slip object
  */
-export const exportSalarySlipToPDF = (slip: any) => {
+export const exportSalarySlipToPDF = async (slip: any) => {
     try {
         const monthName = new Date(slip.year, slip.month - 1).toLocaleString('default', { month: 'long' });
 
@@ -401,21 +454,8 @@ export const exportSalarySlipToPDF = (slip: any) => {
       </html>
     `;
 
-        const printWindow = window.open('', '_blank');
-        if (!printWindow) {
-            alert('Please allow popups to download PDF');
-            return false;
-        }
-
-        printWindow.document.write(htmlContent);
-        printWindow.document.close();
-        printWindow.focus();
-
-        setTimeout(() => {
-            printWindow.print();
-        }, 500);
-
-        return true;
+        const filename = `Salary_Slip_${monthName}_${slip.year}`;
+        return await generateAndDownloadPDF(`Salary Slip - ${monthName} ${slip.year}`, filename, htmlContent);
     } catch (error) {
         console.error('Error exporting salary slip:', error);
         alert('Failed to export salary slip. Please try again.');

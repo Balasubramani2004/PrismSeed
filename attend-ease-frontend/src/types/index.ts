@@ -268,6 +268,31 @@ export interface Notification {
 
 export type NotificationType = 'INFO' | 'SUCCESS' | 'WARNING' | 'ERROR';
 
+// Leave Application Types
+export type LeaveType = 'CASUAL' | 'MEDICAL' | 'EARNED' | 'UNPAID' | 'MATERNITY' | 'PATERNITY';
+export type LeaveApplicationStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED';
+
+export interface LeaveApplication {
+  id: number;
+  labMemberId: number;
+  labMemberName: string;
+  labMemberEmail: string;
+  labId: number;
+  labName: string;
+  leaveType: LeaveType;
+  startDate: string; // YYYY-MM-DD
+  endDate: string; // YYYY-MM-DD
+  numberOfDays: number;
+  reason: string;
+  status: LeaveApplicationStatus;
+  approvedBy?: number;
+  approvedByName?: string;
+  approvalDate?: string;
+  rejectionReason?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // Month/Year Selection
 export interface MonthYear {
   month: number;
@@ -325,3 +350,147 @@ export const getSalaryStatusColor = (status: SalarySlipStatus): 'success' | 'war
       return 'default';
   }
 };
+
+// Shift & Roster Types
+export type ShiftType = 'MORNING' | 'AFTERNOON' | 'EVENING' | 'NIGHT' | 'FLEXIBLE';
+export type ShiftStatus = 'ACTIVE' | 'INACTIVE' | 'ARCHIVED';
+
+export interface Shift {
+  id: number;
+  name: string;
+  type: ShiftType;
+  startTime: string; // HH:MM
+  endTime: string; // HH:MM
+  breakDuration: number; // in minutes
+  totalWorkHours: number;
+  description?: string;
+  status: ShiftStatus;
+  createdAt: string;
+}
+
+export interface RosterAssignment {
+  id: number;
+  labMemberId: number;
+  labMemberName: string;
+  shiftId: number;
+  shiftName: string;
+  weekStartDate: string; // YYYY-MM-DD
+  weekEndDate: string; // YYYY-MM-DD
+  assignedBy: number;
+  assignedByName: string;
+  status: 'ASSIGNED' | 'CONFIRMED' | 'CHANGED' | 'CANCELLED';
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Overtime & Work Hours Types
+export interface OvertimeRequest {
+  id: number;
+  labMemberId: number;
+  labMemberName: string;
+  date: string; // YYYY-MM-DD
+  overtimeHours: number;
+  reason: string;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  approvedBy: number;
+  approvedByName: string;
+  approvalDate: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface WorkHours {
+  id: number;
+  labMemberId: number;
+  labMemberName: string;
+  month: number;
+  year: number;
+  totalWorkHours: number;
+  overtimeHours: number;
+  extraHours: number;
+  standardWorkHours: number;
+}
+
+// Payroll & Deductions Types
+export interface Deduction {
+  id: number;
+  name: string;
+  type: 'PF' | 'ESI' | 'ADVANCE' | 'PENALTY' | 'OTHER';
+  amount: number;
+  percentage?: number;
+  isApplicableToAll: boolean;
+  description?: string;
+  createdAt: string;
+}
+
+export interface PayrollSummary {
+  id: number;
+  month: number;
+  year: number;
+  totalEmployees: number;
+  totalBaseSalary: number;
+  totalOvertime: number;
+  totalIncentives: number;
+  totalDeductions: number;
+  totalNetPayroll: number;
+  processedCount: number;
+  pendingCount: number;
+  generatedAt: string;
+}
+
+export interface PayrollReport {
+  id: number;
+  reportType: 'MONTHLY' | 'DEPARTMENT_WISE' | 'EMPLOYEE_WISE';
+  month: number;
+  year: number;
+  totalRecords: number;
+  totalAmount: number;
+  summary: PayrollSummary;
+  generatedAt: string;
+  generatedBy: string;
+}
+
+// Announcement Types
+export type AnnouncementTarget = 'ALL' | 'ADMIN_ONLY' | 'SPECIFIC_LAB' | 'SPECIFIC_MEMBERS';
+
+export interface Announcement {
+  id: number;
+  title: string;
+  description: string;
+  content: string;
+  createdBy: number;
+  createdByName: string;
+  createdByRole: UserRole;
+  createdAt: string;
+  updatedAt: string;
+  expiresAt?: string;
+  priority: 'LOW' | 'MEDIUM' | 'HIGH';
+  labId?: number;
+  status: 'ACTIVE' | 'INACTIVE' | 'EXPIRED';
+  targetType: AnnouncementTarget;
+  targetLabIds?: number[];
+  targetMemberIds?: number[];
+}
+
+export interface CreateAnnouncementRequest {
+  title: string;
+  description: string;
+  content: string;
+  priority: 'LOW' | 'MEDIUM' | 'HIGH';
+  expiresAt?: string;
+  targetType: AnnouncementTarget;
+  targetLabIds?: number[];
+  targetMemberIds?: number[];
+}
+
+export interface UpdateAnnouncementRequest {
+  title: string;
+  description: string;
+  content: string;
+  priority: 'LOW' | 'MEDIUM' | 'HIGH';
+  expiresAt?: string;
+  status: 'ACTIVE' | 'INACTIVE' | 'EXPIRED';
+  targetType: AnnouncementTarget;
+  targetLabIds?: number[];
+  targetMemberIds?: number[];
+}

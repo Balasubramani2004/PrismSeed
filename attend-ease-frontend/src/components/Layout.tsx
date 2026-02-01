@@ -39,6 +39,8 @@ import {
   AdminPanelSettings as AdminIcon,
   DarkMode as DarkModeIcon,
   LightMode as LightModeIcon,
+  Schedule as ScheduleIcon,
+  AccessTime as AccessTimeIcon,
 } from '@mui/icons-material';
 import { useAuthStore } from '@/stores/authStore';
 import { useThemeMode } from '@/contexts/ThemeContext';
@@ -82,11 +84,25 @@ const navItems: NavItemExtended[] = [
     color: '#22C55E',
   },
   {
+    label: 'Leave Applications',
+    icon: <CalendarIcon />,
+    path: '/member/leaves',
+    roles: ['LAB_MEMBER'],
+    color: '#EC4899',
+  },
+  {
     label: 'Profile',
     icon: <PersonIcon />,
     path: '/member/profile',
     roles: ['LAB_MEMBER'],
     color: '#F59E0B',
+  },
+  {
+    label: 'Settings',
+    icon: <SettingsIcon />,
+    path: '/member/settings',
+    roles: ['LAB_MEMBER'],
+    color: '#8B5CF6',
   },
 
   // Admin Routes
@@ -115,10 +131,34 @@ const navItems: NavItemExtended[] = [
     roles: ['LAB_ADMIN'],
   },
   {
+    label: 'Shift & Roster',
+    icon: <ScheduleIcon />,
+    path: '/admin/shift-roster',
+    roles: ['LAB_ADMIN'],
+  },
+  {
+    label: 'Overtime & Hours',
+    icon: <AccessTimeIcon />,
+    path: '/admin/overtime',
+    roles: ['LAB_ADMIN'],
+  },
+  {
+    label: 'Payroll',
+    icon: <ReceiptIcon />,
+    path: '/admin/payroll',
+    roles: ['LAB_ADMIN'],
+  },
+  {
     label: 'Reports',
     icon: <AssessmentIcon />,
     path: '/admin/reports',
     roles: ['LAB_ADMIN'],
+  },
+  {
+    label: 'Announcements',
+    icon: <NotificationsIcon />,
+    path: '/admin/announcements',
+    roles: ['LAB_ADMIN', 'SUPER_ADMIN'],
   },
 
   // Super Admin Routes
@@ -138,6 +178,12 @@ const navItems: NavItemExtended[] = [
     label: 'Users',
     icon: <PeopleIcon />,
     path: '/super-admin/users',
+    roles: ['SUPER_ADMIN'],
+  },
+  {
+    label: 'Leave Applications',
+    icon: <CalendarIcon />,
+    path: '/super-admin/leaves',
     roles: ['SUPER_ADMIN'],
   },
   {
@@ -564,10 +610,6 @@ const Layout: React.FC = () => {
         <MenuItem onClick={() => { handleProfileMenuClose(); navigate('/member/profile'); }}>
           <ListItemIcon><PersonIcon fontSize="small" /></ListItemIcon>
           Profile
-        </MenuItem>
-        <MenuItem onClick={() => { handleProfileMenuClose(); navigate('/settings'); }}>
-          <ListItemIcon><SettingsIcon fontSize="small" /></ListItemIcon>
-          Settings
         </MenuItem>
         {(user?.role === 'LAB_ADMIN' || user?.role === 'SUPER_ADMIN') && (
           <MenuItem onClick={() => { handleProfileMenuClose(); navigate('/admin/dashboard'); }}>

@@ -18,13 +18,20 @@ import {
   AttendanceSummary,
   SalarySlips,
   Profile,
+  LeaveRequest,
+  MemberSettings,
   MembersManagement,
   AttendanceManagement,
   SalaryManagement,
   Reports,
+  Announcements,
+  ShiftAndRoster,
+  OvertimeAndWorkHours,
+  PayrollAndDeductions,
   LabsManagement,
   UsersManagement,
   Settings,
+  LeaveManagement,
 } from '@/pages';
 
 // Loading Component
@@ -164,7 +171,9 @@ const App: React.FC = () => {
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="attendance" element={<AttendanceSummary />} />
             <Route path="salary-slips" element={<SalarySlips />} />
+            <Route path="leaves" element={<LeaveRequest />} />
             <Route path="profile" element={<Profile />} />
+            <Route path="settings" element={<MemberSettings />} />
           </Route>
 
           {/* Admin Routes */}
@@ -181,7 +190,11 @@ const App: React.FC = () => {
             <Route path="members" element={<MembersManagement />} />
             <Route path="attendance" element={<AttendanceManagement />} />
             <Route path="salary" element={<SalaryManagement />} />
+            <Route path="shift-roster" element={<ShiftAndRoster />} />
+            <Route path="overtime" element={<OvertimeAndWorkHours />} />
+            <Route path="payroll" element={<PayrollAndDeductions />} />
             <Route path="reports" element={<Reports />} />
+            <Route path="announcements" element={<Announcements />} />
           </Route>
 
           {/* Super Admin Routes */}
@@ -197,6 +210,8 @@ const App: React.FC = () => {
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="labs" element={<LabsManagement />} />
             <Route path="users" element={<UsersManagement />} />
+            <Route path="leaves" element={<LeaveManagement />} />
+            <Route path="announcements" element={<Announcements />} />
             <Route path="settings" element={<Settings />} />
           </Route>
 

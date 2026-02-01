@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useState, useMemo, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useMemo, ReactNode, useEffect } from 'react';
 import { ThemeProvider as MuiThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
+import { useAuthStore } from '@/stores/authStore';
 
 interface ThemeContextType {
     isDarkMode: boolean;
@@ -22,7 +23,15 @@ interface ThemeProviderProps {
 }
 
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
+    const { isAuthenticated } = useAuthStore();
     const [isDarkMode, setIsDarkMode] = useState(false);
+
+    // Set dark mode when user is authenticated
+    useEffect(() => {
+        if (isAuthenticated) {
+            setIsDarkMode(true);
+        }
+    }, [isAuthenticated]);
 
     const toggleDarkMode = () => {
         setIsDarkMode((prev) => !prev);

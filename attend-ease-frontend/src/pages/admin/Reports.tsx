@@ -69,6 +69,7 @@ import {
 } from '@mui/icons-material';
 import { StatCard } from '@/components';
 import { mockLabMembers } from '@/services/mockData';
+import { exportToPDF, exportToCSV } from '@/utils/exportUtils';
 
 // Report types
 interface ReportItem {
@@ -240,7 +241,7 @@ const Reports: React.FC = () => {
     setPreviewDialogOpen(true);
   };
 
-  const handleDownload = (report: ReportItem, format?: string) => {
+  const handleDownload = async (report: ReportItem, format?: string) => {
     setSelectedReport(report);
     if (format) {
       // Direct download
@@ -250,16 +251,117 @@ const Reports: React.FC = () => {
         setGenerationStep(prev => {
           if (prev >= 3) {
             clearInterval(interval);
-            setIsGenerating(false);
-            setSnackbar({ open: true, message: `${report.title} downloaded as ${format.toUpperCase()}`, severity: 'success' });
             return 0;
           }
           return prev + 1;
         });
       }, 800);
+
+      try {
+        // Generate sample data based on report type
+        const reportData = generateReportData(report);
+        
+        if (format.toLowerCase() === 'pdf') {
+          // Generate PDF
+          await exportToPDF(
+            report.title,
+            reportData.data,
+            reportData.headers,
+            { 'Total Records': reportData.data.length, 'Generated': new Date().toLocaleDateString() }
+          );
+        } else if (format.toLowerCase() === 'csv') {
+          // Generate CSV
+          exportToCSV(reportData.data, `${report.title}_${new Date().toISOString().split('T')[0]}`, reportData.headers);
+        }
+        
+        clearInterval(interval);
+        setIsGenerating(false);
+        setSnackbar({ open: true, message: `${report.title} downloaded as ${format.toUpperCase()}`, severity: 'success' });
+      } catch (error) {
+        clearInterval(interval);
+        setIsGenerating(false);
+        setSnackbar({ open: true, message: `Error downloading ${report.title}`, severity: 'error' });
+      }
     } else {
       setDownloadDialogOpen(true);
     }
+  };
+
+  const generateReportData = (report: ReportItem) => {
+    const data: Record<string, any>[] = [];
+    const headers: string[] = [];
+
+    switch (report.category) {
+      case 'attendance':
+        headers.push('Member ID', 'Name', 'Present', 'Absent', 'Leave', 'Percentage');
+        mockLabMembers.forEach(member => {
+          data.push({
+            'Member ID': member.id,
+            'Name': member.name,
+            'Present': Math.floor(Math.random() * 20) + 10,
+            'Absent': Math.floor(Math.random() * 3),
+            'Leave': Math.floor(Math.random() * 5),
+            'Percentage': (Math.random() * 20 + 80).toFixed(2) + '%',
+          });
+        });
+        break;
+
+      case 'salary':
+        headers.push('Member ID', 'Name', 'Base Salary', 'Deductions', 'Net Salary', 'Status');
+        mockLabMembers.forEach(member => {
+          const baseSalary = member.baseSalary || 50000;
+          const deductions = Math.floor(baseSalary * 0.1);
+          data.push({
+            'Member ID': member.id,
+            'Name': member.name,
+            'Base Salary': `₹${baseSalary.toLocaleString('en-IN')}`,
+            'Deductions': `₹${deductions.toLocaleString('en-IN')}`,
+            'Net Salary': `₹${(baseSalary - deductions).toLocaleString('en-IN')}`,
+            'Status': ['PENDING', 'APPROVED', 'PAID'][Math.floor(Math.random() * 3)],
+          });
+        });
+        break;
+
+      case 'member':
+        headers.push('Member ID', 'Name', 'Email', 'Lab', 'Role', 'Joining Date');
+        mockLabMembers.forEach(member => {
+          data.push({
+            'Member ID': member.id,
+            'Name': member.name,
+            'Email': member.email,
+            'Lab': `Lab ${member.labId}`,
+            'Role': member.role,
+            'Joining Date': new Date(member.joinDate).toLocaleDateString(),
+          });
+        });
+        break;
+
+      case 'analytics':
+        headers.push('Metric', 'Value', 'Trend', 'Target');
+        data.push(
+          {
+            'Metric': 'Total Attendance',
+            'Value': '85%',
+            'Trend': '↑ 5%',
+            'Target': '90%',
+          },
+          {
+            'Metric': 'On-time Arrivals',
+            'Value': '92%',
+            'Trend': '↑ 3%',
+            'Target': '95%',
+          },
+          {
+            'Metric': 'Avg Salary Processed',
+            'Value': `₹${(45000).toLocaleString('en-IN')}`,
+            'Trend': '→ 0%',
+            'Target': `₹${(50000).toLocaleString('en-IN')}`,
+          }
+        );
+        break;
+    }
+
+    return { data, headers };
   };
 
   const handleScheduleReport = (report: ReportItem) => {
